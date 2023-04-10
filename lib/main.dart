@@ -39,22 +39,21 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Flutter Instagram Feed'),
       ),
       body: _widgetOptions.elementAt(_selectedIndex),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   items: const <BottomNavigationBarItem>[
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home),
-      //       label: 'Home',
-      //     ),
-      //     // Add more navigation items as necessary
-      //   ],
-      //   currentIndex: _selectedIndex,
-      //   onTap: _onItemTapped,
-      // ),
     );
   }
 }
 
-class Feed extends StatelessWidget {
+class Feed extends StatefulWidget {
+  const Feed({Key? key}) : super(key: key);
+
+  @override
+  _FeedState createState() => _FeedState();
+}
+
+class _FeedState extends State<Feed> {
+  List<int> likes = <int>[]; 
+  List<int> saves = <int>[]; 
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -68,8 +67,8 @@ class Feed extends StatelessWidget {
                   backgroundImage: NetworkImage(
                       'https://picsum.photos/200'), // Replace with post image
                 ),
-                title: Text('Post $index'),
-                subtitle: Text('Description of post $index'),
+                title: Text('Aditya'),
+                subtitle: Text('Mumbai'),
               ),
               Image.network(
                   'https://picsum.photos/400?random=$index'), // Replace with post image
@@ -77,16 +76,20 @@ class Feed extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   IconButton(
-                    icon: const Icon(Icons.favorite_border),
-                    onPressed: () {},
+                    icon: likes.contains(index) ? const Icon(Icons.favorite) : const Icon(Icons.favorite_border),
+                    onPressed: () {
+                      setState(() {
+                        likes.add(index);
+                      });
+                    },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.comment),
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.share),
-                    onPressed: () {},
+                    icon: saves.contains(index) ? const Icon(Icons.bookmark) : const Icon(Icons.bookmark_border),
+                    onPressed: () {
+                      setState(() {
+                        saves.add(index);
+                      });
+                    },
                   ),
                 ],
               ),
