@@ -42,7 +42,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
 class Feed extends StatefulWidget {
   const Feed({Key? key}) : super(key: key);
 
@@ -51,49 +50,75 @@ class Feed extends StatefulWidget {
 }
 
 class _FeedState extends State<Feed> {
-  List<int> likes = <int>[]; 
-  List<int> saves = <int>[]; 
+  List<int> likes = <int>[];
+  List<int> saves = <int>[];
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: 10, // Replace with the number of posts
       itemBuilder: (BuildContext context, int index) {
-        return Card(
-          child: Column(
-            children: <Widget>[
-              ListTile(
-                leading: const CircleAvatar(
-                  backgroundImage: NetworkImage(
-                      'https://picsum.photos/200'), // Replace with post image
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                ListTile(
+                  leading: const CircleAvatar(
+                    backgroundImage: NetworkImage(
+                        'https://picsum.photos/200'), // Replace with post image
+                  ),
+                  title: Text('Aditya'),
+                  subtitle: Text('Mumbai'),
                 ),
-                title: Text('Aditya'),
-                subtitle: Text('Mumbai'),
-              ),
-              Image.network(
-                  'https://picsum.photos/400?random=$index'), // Replace with post image
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  IconButton(
-                    icon: likes.contains(index) ? const Icon(Icons.favorite) : const Icon(Icons.favorite_border),
-                    onPressed: () {
-                      setState(() {
-                        likes.add(index);
-                      });
-                    },
-                  ),
-                  IconButton(
-                    icon: saves.contains(index) ? const Icon(Icons.bookmark) : const Icon(Icons.bookmark_border),
-                    onPressed: () {
-                      setState(() {
-                        saves.add(index);
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ],
+                Image.network(
+                    'https://picsum.photos/400?random=$index'), // Replace with post image
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                          icon: likes.contains(index)
+                              ? const Icon(Icons.favorite, color: Colors.red)
+                              : const Icon(Icons.favorite_border),
+                          onPressed: () {
+                            setState(() {
+                              if (likes.contains(index)) {
+                                likes.removeWhere((item) => item == index);
+                              } else {
+                                likes.add(index);
+                              }
+                            });
+                          },
+                        ),
+                        const SizedBox(width: 4.0), // Add some space here
+                        IconButton(
+                          icon: const Icon(Icons.mode_comment_outlined),
+                          onPressed: () {},
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: saves.contains(index)
+                          ? const Icon(Icons.bookmark, color: Colors.black)
+                          : const Icon(Icons.bookmark_border),
+                      onPressed: () {
+                        setState(() {
+                          if (saves.contains(index)) {
+                            saves.removeWhere((item) => item == index);
+                          } else {
+                            saves.add(index);
+                          }
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
