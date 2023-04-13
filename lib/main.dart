@@ -1,127 +1,179 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 
-void main() => runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: 'https://wjzgvpftlznhngujjmze.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indqemd2cGZ0bHpuaG5ndWpqbXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODEyMDQ5MTgsImV4cCI6MTk5Njc4MDkxOH0.M8QuSuQWQFcP13_1nallkST1hIlP7WJrgWPwwXs9BPc',
+  );
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: 'Flutter Instagram Feed',
-      home: MyHomePage(),
+      title: 'Countries',
+      home: HomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
+class _HomePageState extends State<HomePage> {
+  final _future = Supabase.instance.client
+      .from('posts')
+      .select<List<Map<String, dynamic>>>('''
+    *,
+    users (
+      id,
+      name,
+      profile_image
+    )
+  ''');
 
-  static List<Widget> _widgetOptions = <Widget>[Feed()];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Flutter Instagram Feed'),
-      ),
-      body: _widgetOptions.elementAt(_selectedIndex),
-    );
-  }
-}
-class Feed extends StatefulWidget {
-  const Feed({Key? key}) : super(key: key);
-
-  @override
-  _FeedState createState() => _FeedState();
-}
-
-class _FeedState extends State<Feed> {
   List<int> likes = <int>[];
   List<int> saves = <int>[];
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: 10, // Replace with the number of posts
-      itemBuilder: (BuildContext context, int index) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
-          child: Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                ListTile(
-                  leading: const CircleAvatar(
-                    backgroundImage: NetworkImage(
-                        'https://picsum.photos/200'), // Replace with post image
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        shadowColor: Colors.white,
+        elevation: 0,
+        leading: Image.network(
+            'https://1000logos.net/wp-content/uploads/2017/02/Logo-Instagram.png'),
+      ),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _future,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final posts = snapshot.data!;
+          return ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: ((context, index) {
+              final post = posts[index];
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  ListTile(
+                    tileColor: Colors.white,
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(
+                        post['users']['profile_image'],
+                      ),
+                    ),
+                    title: Text(post['users']['name']),
+                    subtitle: Text(post['location']),
                   ),
-                  title: Text('Aditya'),
-                  subtitle: Text('Mumbai'),
-                ),
-                Image.network(
-                    'https://picsum.photos/400?random=$index'), // Replace with post image
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        IconButton(
-                          icon: likes.contains(index)
-                              ? const Icon(Icons.favorite, color: Colors.red)
-                              : const Icon(Icons.favorite_border),
-                          onPressed: () {
-                            setState(() {
-                              if (likes.contains(index)) {
-                                likes.removeWhere((item) => item == index);
-                              } else {
-                                likes.add(index);
-                              }
-                            });
+                  if (post['post_type'] == 'image')
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(width: 0.5, color: Colors.black26),
+                          top: BorderSide(width: 0.5, color: Colors.black26),
+                        ),
+                      ),
+                      height: 380,
+                      width: double.infinity,
+                      child: Image.network(post['post_url']),
+                    )
+                  else if (post['post_type'] == 'video')
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(width: 0.5, color: Colors.black26),
+                          top: BorderSide(width: 0.5, color: Colors.black26),
+                        ),
+                      ),
+                      height: 380,
+                      width: double.infinity,
+                      child: Chewie(
+                        controller: ChewieController(
+                          videoPlayerController: VideoPlayerController.network(
+                            post['post_url'],
+                          ),
+                          aspectRatio: 16 / 9,
+                          autoPlay: true,
+                          looping: false,
+                          allowMuting: true,
+                          showControls: false,
+                          errorBuilder: (context, errorMessage) {
+                            return Center(
+                              child: Text(
+                                errorMessage,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            );
                           },
                         ),
-                        const SizedBox(width: 4.0), // Add some space here
-                        IconButton(
-                          icon: const Icon(Icons.mode_comment_outlined),
-                          onPressed: () {},
-                        ),
-                      ],
+                      ),
                     ),
-                    IconButton(
-                      icon: saves.contains(index)
-                          ? const Icon(Icons.bookmark, color: Colors.black)
-                          : const Icon(Icons.bookmark_border),
-                      onPressed: () {
-                        setState(() {
-                          if (saves.contains(index)) {
-                            saves.removeWhere((item) => item == index);
-                          } else {
-                            saves.add(index);
-                          }
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          IconButton(
+                            icon: likes.contains(index)
+                                ? const Icon(Icons.favorite, color: Colors.red)
+                                : const Icon(Icons.favorite_border),
+                            onPressed: () {
+                              setState(() {
+                                if (likes.contains(index)) {
+                                  likes.removeWhere((item) => item == index);
+                                } else {
+                                  likes.add(index);
+                                }
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 4.0), // Add some space here
+                          IconButton(
+                            icon: const Icon(Icons.mode_comment_outlined),
+                            onPressed: () {},
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: saves.contains(index)
+                            ? const Icon(Icons.bookmark, color: Colors.black)
+                            : const Icon(Icons.bookmark_border),
+                        onPressed: () {
+                          setState(() {
+                            if (saves.contains(index)) {
+                              saves.removeWhere((item) => item == index);
+                            } else {
+                              saves.add(index);
+                            }
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }),
+          );
+        },
+      ),
     );
   }
 }
