@@ -1,4 +1,4 @@
-# insta_feed
+# flutter_supa
 
 A new Flutter project.
 

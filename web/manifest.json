@@ -1,6 +1,6 @@
 {
-    "name": "insta_feed",
-    "short_name": "insta_feed",
+    "name": "flutter_supa",
+    "short_name": "flutter_supa",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
