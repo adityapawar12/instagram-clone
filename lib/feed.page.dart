@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_supa/profile.page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
@@ -12,6 +13,21 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
+  late int _userId;
+  late String _userName = '';
+  late String _userPhone = '';
+  late String _userEmail = '';
+  late String _userProfileUrl = '';
+
+  List<int> likes = <int>[];
+  List<int> saves = <int>[];
+
+  @override
+  void initState() {
+    _loadPreferences();
+    super.initState();
+  }
+
   final _future = Supabase.instance.client
       .from('posts')
       .select<List<Map<String, dynamic>>>('''
@@ -23,21 +39,6 @@ class _FeedPageState extends State<FeedPage> {
     )
   ''');
 
-  late int _userId;
-  late String _userName;
-  late String _userPhone;
-  late String _userEmail;
-  late String _userProfileUrl;
-
-  List<int> likes = <int>[];
-  List<int> saves = <int>[];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPreferences();
-  }
-
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -47,7 +48,6 @@ class _FeedPageState extends State<FeedPage> {
       _userEmail = prefs.getString('userEmail') ?? "";
       _userProfileUrl = prefs.getString('profileImage') ?? "";
     });
-    print({_userId, _userName, _userPhone, _userEmail, _userProfileUrl});
   }
 
   @override
@@ -58,9 +58,10 @@ class _FeedPageState extends State<FeedPage> {
         if (!snapshot.hasData) {
           return const Scaffold(
             body: Center(
-                child: CircularProgressIndicator(
-              backgroundColor: Colors.white,
-            )),
+              child: CircularProgressIndicator(
+                backgroundColor: Colors.white,
+              ),
+            ),
           );
         }
         final posts = snapshot.data!;
@@ -70,7 +71,7 @@ class _FeedPageState extends State<FeedPage> {
             shadowColor: Colors.white,
             elevation: 0,
             leading: Image.network(
-              _userProfileUrl,
+              'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/1280px-Instagram_logo.svg.png',
             ),
           ),
           body: ListView.builder(

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_supa/Container.page.dart';
 import 'package:flutter_supa/feed.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _LoginPageState createState() => _LoginPageState();
 }
 
@@ -21,7 +22,6 @@ class _LoginPageState extends State<LoginPage> {
       final email = _emailController.text;
       final password = _passwordController.text;
 
-      print({email, password});
       final future = await Supabase.instance.client
           .from('users')
           .select<List<Map<String, dynamic>>>(
@@ -31,7 +31,6 @@ class _LoginPageState extends State<LoginPage> {
 
       if (future.isNotEmpty) {
         // Obtain shared preferences.
-        print(future[0]['name']);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
 
         await prefs.setInt('userId', future[0]['id']);
@@ -42,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
         // ignore: use_build_context_synchronously
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const FeedPage()),
+          MaterialPageRoute(builder: (_) => const ContainerPage()),
         );
       } else {
         // ignore: use_build_context_synchronously
