@@ -45,7 +45,6 @@ class MyApp extends StatelessWidget {
             return false;
           }
 
-          // Update the list of pages by removing the last one
           screens.removeLast();
 
           return true;

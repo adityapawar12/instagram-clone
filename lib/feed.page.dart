@@ -92,45 +92,51 @@ class _FeedPageState extends State<FeedPage> {
                     subtitle: Text(post['location']),
                   ),
                   if (post['post_type'] == 'image')
-                    Container(
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(width: 0.5, color: Colors.black26),
-                          top: BorderSide(width: 0.5, color: Colors.black26),
-                        ),
-                      ),
-                      height: 380,
+                    SizedBox(
+                      // decoration: const BoxDecoration(
+                      //   border: Border(
+                      //     bottom: BorderSide(width: 0.5, color: Colors.black26),
+                      //     top: BorderSide(width: 0.5, color: Colors.black26),
+                      //   ),
+                      // ),
+                      height: 400,
                       width: double.infinity,
-                      child: Image.network(post['post_url']),
+                      child: FittedBox(
+                          fit: BoxFit.contain,
+                          child: Image.network(post['post_url'])),
                     )
                   else if (post['post_type'] == 'video')
-                    Container(
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(width: 0.5, color: Colors.black26),
-                          top: BorderSide(width: 0.5, color: Colors.black26),
-                        ),
-                      ),
+                    SizedBox(
+                      // decoration: const BoxDecoration(
+                      //   border: Border(
+                      //     bottom: BorderSide(width: 0.5, color: Colors.black26),
+                      //     top: BorderSide(width: 0.5, color: Colors.black26),
+                      //   ),
+                      // ),
                       height: 600,
                       width: double.infinity,
-                      child: Chewie(
-                        controller: ChewieController(
-                          videoPlayerController: VideoPlayerController.network(
-                            post['post_url'],
+                      child: FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: Chewie(
+                          controller: ChewieController(
+                            videoPlayerController:
+                                VideoPlayerController.network(
+                              post['post_url'],
+                            ),
+                            aspectRatio: 16 / 9,
+                            autoPlay: true,
+                            looping: false,
+                            allowMuting: true,
+                            showControls: false,
+                            errorBuilder: (context, errorMessage) {
+                              return Center(
+                                child: Text(
+                                  errorMessage,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              );
+                            },
                           ),
-                          aspectRatio: 16 / 9,
-                          autoPlay: true,
-                          looping: false,
-                          allowMuting: true,
-                          showControls: false,
-                          errorBuilder: (context, errorMessage) {
-                            return Center(
-                              child: Text(
-                                errorMessage,
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            );
-                          },
                         ),
                       ),
                     ),
@@ -154,7 +160,7 @@ class _FeedPageState extends State<FeedPage> {
                               });
                             },
                           ),
-                          const SizedBox(width: 4.0), // Add some space here
+                          const SizedBox(width: 4.0),
                           IconButton(
                             icon: const Icon(Icons.mode_comment_outlined),
                             onPressed: () {},

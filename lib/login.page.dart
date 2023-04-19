@@ -30,7 +30,6 @@ class _LoginPageState extends State<LoginPage> {
           .eq('password', password);
 
       if (future.isNotEmpty) {
-        // Obtain shared preferences.
         final SharedPreferences prefs = await SharedPreferences.getInstance();
 
         await prefs.setInt('userId', future[0]['id']);

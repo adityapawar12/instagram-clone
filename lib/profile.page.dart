@@ -32,7 +32,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      print('wwwwwwwwwwwww ${prefs.getInt('userId')}');
       _userId = prefs.getInt('userId') ?? 0;
       _userName = prefs.getString('userName') ?? "";
       _userPhone = prefs.getString('userPhone') ?? "";
@@ -43,18 +42,19 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<dynamic> _getPosts() async {
     final prefs = await SharedPreferences.getInstance();
-    print("user id $prefs.getInt('userId')");
     _posts = await Supabase.instance.client
         .from('posts')
         .select<List<Map<String, dynamic>>>('''
-    *,
-    users (
-      id,
-      name,
-      profile_image
-    )
-  ''').eq('user_id', prefs.getInt('userId'));
-    print("FUTURE $_posts");
+        *,
+        users (
+          id,
+          name,
+          profile_image
+        )
+      ''').eq('user_id', prefs.getInt('userId'));
+    setState(() {
+      _postsCount = _posts.length;
+    });
   }
 
   @override
@@ -75,274 +75,149 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-      body: Row(
+      body: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.all(15.0),
-            child: Column(
-              children: [
-                if (_userProfileUrl.isNotEmpty)
-                  Image.network(
-                    _userProfileUrl,
-                    height: 90,
-                  )
-                else
-                  const Icon(
-                    Icons.person,
-                  ),
-                Text(
-                  _userName,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                )
-              ],
+          Row(
+            children: [
+              Container(
+                margin: const EdgeInsets.all(15.0),
+                child: Column(
+                  children: [
+                    if (_userProfileUrl.isNotEmpty)
+                      Image.network(
+                        _userProfileUrl,
+                        height: 90,
+                      )
+                    else
+                      const Icon(
+                        Icons.person,
+                        size: 90,
+                      ),
+                    Text(
+                      _userName,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(
+                    top: 40.0, left: 27.0, bottom: 15.0, right: 27.0),
+                child: Column(
+                  children: [
+                    Text(
+                      _postsCount > 0 ? _postsCount.toString() : '0',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 40),
+                    ),
+                    const Text(
+                      'Posts',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w500, fontSize: 17),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(
+                    top: 40.0, left: 27.0, bottom: 15.0, right: 27.0),
+                child: Column(
+                  children: [
+                    Text(
+                      _postsCount > 0 ? _postsCount.toString() : '0',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 40),
+                    ),
+                    const Text(
+                      'Posts',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w500, fontSize: 17),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(
+                    top: 40.0, left: 27.0, bottom: 15.0, right: 27.0),
+                child: Column(
+                  children: [
+                    Text(
+                      _postsCount > 0 ? _postsCount.toString() : '0',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 40),
+                    ),
+                    const Text(
+                      'Posts',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w500, fontSize: 17),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 3,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 1.0,
+              children: List.generate(
+                _posts.length,
+                (index) {
+                  final post = _posts[index];
+
+                  return Column(
+                    children: [
+                      if (post['post_type'] == 'image')
+                        SizedBox(
+                          width: double.infinity,
+                          height: 200,
+                          child: FittedBox(
+                            fit: BoxFit.fitWidth,
+                            child: Image.network(
+                              post['post_url'],
+                            ),
+                          ),
+                        )
+                      else if (post['post_type'] == 'video')
+                        SizedBox(
+                          width: double.infinity,
+                          height: 200,
+                          child: FittedBox(
+                            fit: BoxFit.fitWidth,
+                            child: Chewie(
+                              controller: ChewieController(
+                                videoPlayerController:
+                                    VideoPlayerController.network(
+                                  post['post_url'],
+                                ),
+                                aspectRatio: 16 / 9,
+                                autoPlay: true,
+                                looping: false,
+                                allowMuting: true,
+                                showControls: false,
+                                errorBuilder: (context, errorMessage) {
+                                  return Center(
+                                    child: Text(
+                                      errorMessage,
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
             ),
-          )
+          ),
         ],
       ),
-      // body: ListView.builder(
-      //   itemCount: posts.length,
-      //   itemBuilder: ((context, index) {
-      //     final post = posts[index];
-      //     return Column(
-      //       crossAxisAlignment: CrossAxisAlignment.start,
-      //       children: <Widget>[
-      //         ListTile(
-      //           tileColor: Colors.white,
-      //           leading: CircleAvatar(
-      //             backgroundImage: NetworkImage(
-      //               post['users']['profile_image'],
-      //             ),
-      //           ),
-      //           title: Text(post['users']['name']),
-      //           subtitle: Text(post['location']),
-      //         ),
-      //         if (post['post_type'] == 'image')
-      //           Container(
-      //             decoration: const BoxDecoration(
-      //               border: Border(
-      //                 bottom: BorderSide(width: 0.5, color: Colors.black26),
-      //                 top: BorderSide(width: 0.5, color: Colors.black26),
-      //               ),
-      //             ),
-      //             height: 380,
-      //             width: double.infinity,
-      //             child: Image.network(post['post_url']),
-      //           )
-      //         else if (post['post_type'] == 'video')
-      //           Container(
-      //             decoration: const BoxDecoration(
-      //               border: Border(
-      //                 bottom: BorderSide(width: 0.5, color: Colors.black26),
-      //                 top: BorderSide(width: 0.5, color: Colors.black26),
-      //               ),
-      //             ),
-      //             height: 600,
-      //             width: double.infinity,
-      //             child: Chewie(
-      //               controller: ChewieController(
-      //                 videoPlayerController: VideoPlayerController.network(
-      //                   post['post_url'],
-      //                 ),
-      //                 aspectRatio: 16 / 9,
-      //                 autoPlay: true,
-      //                 looping: false,
-      //                 allowMuting: true,
-      //                 showControls: false,
-      //                 errorBuilder: (context, errorMessage) {
-      //                   return Center(
-      //                     child: Text(
-      //                       errorMessage,
-      //                       style: const TextStyle(color: Colors.white),
-      //                     ),
-      //                   );
-      //                 },
-      //               ),
-      //             ),
-      //           ),
-      //         Row(
-      //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //           children: <Widget>[
-      //             Row(
-      //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      //               children: [
-      //                 IconButton(
-      //                   icon: likes.contains(index)
-      //                       ? const Icon(Icons.favorite, color: Colors.red)
-      //                       : const Icon(Icons.favorite_border),
-      //                   onPressed: () {
-      //                     setState(() {
-      //                       if (likes.contains(index)) {
-      //                         likes.removeWhere((item) => item == index);
-      //                       } else {
-      //                         likes.add(index);
-      //                       }
-      //                     });
-      //                   },
-      //                 ),
-      //                 const SizedBox(width: 4.0), // Add some space here
-      //                 IconButton(
-      //                   icon: const Icon(Icons.mode_comment_outlined),
-      //                   onPressed: () {},
-      //                 ),
-      //               ],
-      //             ),
-      //             IconButton(
-      //               icon: saves.contains(index)
-      //                   ? const Icon(Icons.bookmark, color: Colors.black)
-      //                   : const Icon(Icons.bookmark_border),
-      //               onPressed: () {
-      //                 setState(() {
-      //                   if (saves.contains(index)) {
-      //                     saves.removeWhere((item) => item == index);
-      //                   } else {
-      //                     saves.add(index);
-      //                   }
-      //                 });
-      //               },
-      //             ),
-      //           ],
-      //         ),
-      //       ],
-      //     );
-      //   }),
-      // ),
     );
   }
 }
-
-//  return FutureBuilder<List<Map<String, dynamic>>>(
-//       future: _future,
-//       builder: (context, snapshot) {
-//         if (!snapshot.hasData) {
-//           return const Scaffold(
-//             body: Center(
-//               child: CircularProgressIndicator(
-//                 backgroundColor: Colors.white,
-//               ),
-//             ),
-//           );
-//         }
-//         final posts = snapshot.data!;
-//         return Scaffold(
-//           appBar: AppBar(
-//             backgroundColor: Colors.white,
-//             shadowColor: Colors.white,
-//             elevation: 0,
-//             leading: Text(
-//               _userName,
-//               style: const TextStyle(
-//                 color: Colors.black,
-//               ),
-//             ),
-//           ),
-          // body: ListView.builder(
-          //   itemCount: posts.length,
-          //   itemBuilder: ((context, index) {
-          //     final post = posts[index];
-          //     return Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: <Widget>[
-          //         ListTile(
-          //           tileColor: Colors.white,
-          //           leading: CircleAvatar(
-          //             backgroundImage: NetworkImage(
-          //               post['users']['profile_image'],
-          //             ),
-          //           ),
-          //           title: Text(post['users']['name']),
-          //           subtitle: Text(post['location']),
-          //         ),
-          //         if (post['post_type'] == 'image')
-          //           Container(
-          //             decoration: const BoxDecoration(
-          //               border: Border(
-          //                 bottom: BorderSide(width: 0.5, color: Colors.black26),
-          //                 top: BorderSide(width: 0.5, color: Colors.black26),
-          //               ),
-          //             ),
-          //             height: 380,
-          //             width: double.infinity,
-          //             child: Image.network(post['post_url']),
-          //           )
-          //         else if (post['post_type'] == 'video')
-          //           Container(
-          //             decoration: const BoxDecoration(
-          //               border: Border(
-          //                 bottom: BorderSide(width: 0.5, color: Colors.black26),
-          //                 top: BorderSide(width: 0.5, color: Colors.black26),
-          //               ),
-          //             ),
-          //             height: 600,
-          //             width: double.infinity,
-          //             child: Chewie(
-          //               controller: ChewieController(
-          //                 videoPlayerController: VideoPlayerController.network(
-          //                   post['post_url'],
-          //                 ),
-          //                 aspectRatio: 16 / 9,
-          //                 autoPlay: true,
-          //                 looping: false,
-          //                 allowMuting: true,
-          //                 showControls: false,
-          //                 errorBuilder: (context, errorMessage) {
-          //                   return Center(
-          //                     child: Text(
-          //                       errorMessage,
-          //                       style: const TextStyle(color: Colors.white),
-          //                     ),
-          //                   );
-          //                 },
-          //               ),
-          //             ),
-          //           ),
-          //         Row(
-          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //           children: <Widget>[
-          //             Row(
-          //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //               children: [
-          //                 IconButton(
-          //                   icon: likes.contains(index)
-          //                       ? const Icon(Icons.favorite, color: Colors.red)
-          //                       : const Icon(Icons.favorite_border),
-          //                   onPressed: () {
-          //                     setState(() {
-          //                       if (likes.contains(index)) {
-          //                         likes.removeWhere((item) => item == index);
-          //                       } else {
-          //                         likes.add(index);
-          //                       }
-          //                     });
-          //                   },
-          //                 ),
-          //                 const SizedBox(width: 4.0), // Add some space here
-          //                 IconButton(
-          //                   icon: const Icon(Icons.mode_comment_outlined),
-          //                   onPressed: () {},
-          //                 ),
-          //               ],
-          //             ),
-          //             IconButton(
-          //               icon: saves.contains(index)
-          //                   ? const Icon(Icons.bookmark, color: Colors.black)
-          //                   : const Icon(Icons.bookmark_border),
-          //               onPressed: () {
-          //                 setState(() {
-          //                   if (saves.contains(index)) {
-          //                     saves.removeWhere((item) => item == index);
-          //                   } else {
-          //                     saves.add(index);
-          //                   }
-          //                 });
-          //               },
-          //             ),
-          //           ],
-          //         ),
-          //       ],
-          //     );
-          //   }),
-          // ),
-    //     );
-    //   },
-    // );
-  
