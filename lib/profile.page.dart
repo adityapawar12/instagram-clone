@@ -172,7 +172,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       if (post['post_type'] == 'image')
                         SizedBox(
                           width: double.infinity,
-                          height: 200,
+                          height: 120,
                           child: FittedBox(
                             fit: BoxFit.fitWidth,
                             child: Image.network(
@@ -183,7 +183,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       else if (post['post_type'] == 'video')
                         SizedBox(
                           width: double.infinity,
-                          height: 200,
+                          height: 120,
                           child: FittedBox(
                             fit: BoxFit.fitWidth,
                             child: Chewie(
