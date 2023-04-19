@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_supa/Add.page.dart';
 import 'package:flutter_supa/feed.page.dart';
 import 'package:flutter_supa/profile.page.dart';
 
@@ -7,6 +8,7 @@ class ContainerPage extends StatefulWidget {
 
   static const List<Widget> _widgetOptions = <Widget>[
     FeedPage(),
+    AddPage(),
     ProfilePage(),
   ];
 
@@ -33,6 +35,10 @@ class _ContainerPageState extends State<ContainerPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_circle_outline),
+            label: 'Add',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_2),

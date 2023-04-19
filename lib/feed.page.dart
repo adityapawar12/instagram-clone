@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_supa/profile.page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
