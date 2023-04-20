@@ -154,12 +154,17 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ],
           ),
+          Container(
+            height: 16.0,
+          ),
           Expanded(
             child: GridView.count(
               crossAxisCount: 3,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 1.0,
+              crossAxisSpacing: 0.4,
+              mainAxisSpacing: 0.4,
+              physics: const BouncingScrollPhysics(),
+              // childAspectRatio: cardWidth / cardHeight,
+              // childAspectRatio: 1 / 1,
               children: List.generate(
                 _posts.length,
                 (index) {
@@ -169,18 +174,19 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       if (post['post_type'] == 'image')
                         SizedBox(
-                          width: double.infinity,
+                          width: 120,
                           height: 120,
                           child: FittedBox(
-                            fit: BoxFit.fitWidth,
+                            fit: BoxFit.contain,
                             child: Image.network(
                               post['post_url'],
+                              height: 120,
                             ),
                           ),
                         )
                       else if (post['post_type'] == 'video')
                         SizedBox(
-                          width: double.infinity,
+                          width: 120,
                           height: 120,
                           child: FittedBox(
                             fit: BoxFit.fitWidth,
@@ -190,9 +196,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                     VideoPlayerController.network(
                                   post['post_url'],
                                 ),
-                                aspectRatio: 16 / 9,
                                 autoPlay: true,
+                                aspectRatio: 16 / 9,
                                 looping: false,
+                                allowFullScreen: true,
                                 allowMuting: true,
                                 showControls: false,
                                 errorBuilder: (context, errorMessage) {

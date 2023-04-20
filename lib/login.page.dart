@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_supa/Container.page.dart';
+import 'package:flutter_supa/signup.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -62,7 +63,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -70,6 +70,16 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const Text(
+                'LOGIN',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(
+                height: 16.0,
+              ),
               TextFormField(
                 controller: _emailController,
                 validator: (value) {
@@ -80,7 +90,17 @@ class _LoginPageState extends State<LoginPage> {
                 },
                 decoration: const InputDecoration(
                   labelText: 'Email',
+                  hintText: 'Email',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.red,
+                      width: 5.0,
+                    ),
+                  ),
                 ),
+              ),
+              const SizedBox(
+                height: 16.0,
               ),
               TextFormField(
                 controller: _passwordController,
@@ -93,12 +113,39 @@ class _LoginPageState extends State<LoginPage> {
                 },
                 decoration: const InputDecoration(
                   labelText: 'Password',
+                  hintText: 'Password',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.red,
+                      width: 5.0,
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _login,
-                child: const Text('Login'),
+              const SizedBox(
+                height: 16.0,
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _login,
+                  child: const Text('LOGIN'),
+                ),
+              ),
+              const SizedBox(
+                height: 5.0,
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SignUpPage()),
+                    );
+                  },
+                  child: const Text('Sign Up'),
+                ),
               ),
             ],
           ),

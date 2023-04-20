@@ -32,15 +32,24 @@ class _ContainerPageState extends State<ContainerPage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(
+              Icons.home,
+              color: Colors.cyan,
+            ),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline),
+            icon: Icon(
+              Icons.add_circle_outline,
+              color: Colors.cyan,
+            ),
             label: 'Add',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_2),
+            icon: Icon(
+              Icons.person_2,
+              color: Colors.cyan,
+            ),
             label: 'Profile',
           ),
         ],
