@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({Key? key}) : super(key: key);
@@ -12,18 +12,18 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
-  late int _userId;
-  late String _userName = '';
-  late String _userPhone = '';
-  late String _userEmail = '';
-  late String _userProfileUrl = '';
+  // late int _userId;
+  // late String _userName = '';
+  // late String _userPhone = '';
+  // late String _userEmail = '';
+  // late String _userProfileUrl = '';
 
   List<int> likes = <int>[];
   List<int> saves = <int>[];
 
   @override
   void initState() {
-    _loadPreferences();
+    // _loadPreferences();
     super.initState();
   }
 
@@ -38,16 +38,16 @@ class _FeedPageState extends State<FeedPage> {
     )
   ''');
 
-  Future<void> _loadPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = prefs.getInt('userId') ?? 0;
-      _userName = prefs.getString('userName') ?? "";
-      _userPhone = prefs.getString('userPhone') ?? "";
-      _userEmail = prefs.getString('userEmail') ?? "";
-      _userProfileUrl = prefs.getString('profileImage') ?? "";
-    });
-  }
+  // Future<void> _loadPreferences() async {
+  //   // final prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     // _userId = prefs.getInt('userId') ?? 0;
+  //     // _userName = prefs.getString('userName') ?? "";
+  //     // _userPhone = prefs.getString('userPhone') ?? "";
+  //     // _userEmail = prefs.getString('userEmail') ?? "";
+  //     // _userProfileUrl = prefs.getString('profileImage') ?? "";
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -91,13 +91,12 @@ class _FeedPageState extends State<FeedPage> {
                     subtitle: Text(post['location']),
                   ),
                   if (post['post_type'] == 'image')
-                    SizedBox(
-                      // decoration: const BoxDecoration(
-                      //   border: Border(
-                      //     bottom: BorderSide(width: 0.5, color: Colors.black26),
-                      //     top: BorderSide(width: 0.5, color: Colors.black26),
-                      //   ),
-                      // ),
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(width: 0.5, color: Colors.black26),
+                        ),
+                      ),
                       height: 400,
                       width: double.infinity,
                       child: FittedBox(
@@ -105,13 +104,12 @@ class _FeedPageState extends State<FeedPage> {
                           child: Image.network(post['post_url'])),
                     )
                   else if (post['post_type'] == 'video')
-                    SizedBox(
-                      // decoration: const BoxDecoration(
-                      //   border: Border(
-                      //     bottom: BorderSide(width: 0.5, color: Colors.black26),
-                      //     top: BorderSide(width: 0.5, color: Colors.black26),
-                      //   ),
-                      // ),
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(width: 0.5, color: Colors.black26),
+                        ),
+                      ),
                       height: 600,
                       width: double.infinity,
                       child: FittedBox(

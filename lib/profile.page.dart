@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_supa/feed.page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
@@ -13,11 +12,10 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  int _selectedIndex = 0;
-  late int _userId = 0;
+  // late int _userId = 0;
   late String _userName = '';
-  late String _userPhone = '';
-  late String _userEmail = '';
+  // late String _userPhone = '';
+  // late String _userEmail = '';
   late String _userProfileUrl = '';
   var _posts = [];
   var _postsCount = 0;
@@ -32,10 +30,10 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _userId = prefs.getInt('userId') ?? 0;
+      // _userId = prefs.getInt('userId') ?? 0;
       _userName = prefs.getString('userName') ?? "";
-      _userPhone = prefs.getString('userPhone') ?? "";
-      _userEmail = prefs.getString('userEmail') ?? "";
+      // _userPhone = prefs.getString('userPhone') ?? "";
+      // _userEmail = prefs.getString('userEmail') ?? "";
       _userProfileUrl = prefs.getString('profileImage') ?? "";
     });
   }
