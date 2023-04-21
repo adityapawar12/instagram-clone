@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:image/image.dart' as img;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({Key? key}) : super(key: key);
@@ -14,13 +15,22 @@ class FeedPage extends StatefulWidget {
 class _FeedPageState extends State<FeedPage> {
   List<int> likes = <int>[];
   List<int> saves = <int>[];
+  late int _userId = 0;
 
   @override
   void initState() {
+    _loadPreferences();
     super.initState();
   }
 
-  final _future = Supabase.instance.client
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userId = prefs.getInt('userId') ?? 0;
+    });
+  }
+
+  var _future = Supabase.instance.client
       .from('posts')
       .select<List<Map<String, dynamic>>>('''
     *,
@@ -28,8 +38,132 @@ class _FeedPageState extends State<FeedPage> {
       id,
       name,
       profile_image
+    ),
+    likes (
+      id
+    ),
+    saves (
+      id
     )
   ''').order('id');
+
+  _likePost(post) async {
+    final checkLike = await Supabase.instance.client
+        .from('likes')
+        .select()
+        .eq('user_id', _userId)
+        .eq('post_id', post['id']);
+    if (checkLike.length > 0) {
+      await Supabase.instance.client.from('likes').delete().match(
+        {
+          'user_id': _userId,
+          'post_id': post['id'],
+        },
+      );
+      setState(() {
+        _future = Supabase.instance.client
+            .from('posts')
+            .select<List<Map<String, dynamic>>>('''
+              *,
+              users (
+                id,
+                name,
+                profile_image
+              ),
+              likes (
+                id
+              ),
+              saves (
+                id
+              )
+            ''').order('id');
+      });
+    } else if (checkLike.length < 1) {
+      await Supabase.instance.client.from('likes').insert(
+        {
+          'user_id': _userId,
+          'post_id': post['id'],
+        },
+      );
+      setState(() {
+        _future = Supabase.instance.client
+            .from('posts')
+            .select<List<Map<String, dynamic>>>('''
+              *,
+              users (
+                id,
+                name,
+                profile_image
+              ),
+              likes (
+                id
+              ),
+              saves (
+                id
+              )
+            ''').order('id');
+      });
+    }
+  }
+
+  _savePost(post) async {
+    final checkSave = await Supabase.instance.client
+        .from('saves')
+        .select()
+        .eq('user_id', _userId)
+        .eq('post_id', post['id']);
+    if (checkSave.length > 0) {
+      await Supabase.instance.client.from('saves').delete().match(
+        {
+          'user_id': _userId,
+          'post_id': post['id'],
+        },
+      );
+      setState(() {
+        _future = Supabase.instance.client
+            .from('posts')
+            .select<List<Map<String, dynamic>>>('''
+              *,
+              users (
+                id,
+                name,
+                profile_image
+              ),
+              likes (
+                id
+              ),
+              saves (
+                id
+              )
+            ''').order('id');
+      });
+    } else if (checkSave.length < 1) {
+      await Supabase.instance.client.from('saves').insert(
+        {
+          'user_id': _userId,
+          'post_id': post['id'],
+        },
+      );
+      setState(() {
+        _future = Supabase.instance.client
+            .from('posts')
+            .select<List<Map<String, dynamic>>>('''
+              *,
+              users (
+                id,
+                name,
+                profile_image
+              ),
+              likes (
+                id
+              ),
+              saves (
+                id
+              )
+            ''').order('id');
+      });
+    }
+  }
 
   // Future<void> _getPosts() async {final postsData = await Supabase.instance.client.rpc('fp_get_posts');setState(() {posts = postsData;});}
 
@@ -153,21 +287,12 @@ class _FeedPageState extends State<FeedPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 IconButton(
-                                  icon: likes.contains(index)
+                                  icon: post['likes'].length > 0
                                       ? const Icon(Icons.favorite,
                                           color: Colors.red)
                                       : const Icon(Icons.favorite_border),
                                   onPressed: () {
-                                    setState(
-                                      () {
-                                        if (likes.contains(index)) {
-                                          likes.removeWhere(
-                                              (item) => item == index);
-                                        } else {
-                                          likes.add(index);
-                                        }
-                                      },
-                                    );
+                                    _likePost(post);
                                   },
                                 ),
                                 const SizedBox(width: 4.0),
@@ -178,21 +303,12 @@ class _FeedPageState extends State<FeedPage> {
                               ],
                             ),
                             IconButton(
-                              icon: saves.contains(index)
+                              icon: post['saves'].length > 0
                                   ? const Icon(Icons.bookmark,
                                       color: Colors.black)
                                   : const Icon(Icons.bookmark_border),
                               onPressed: () {
-                                setState(
-                                  () {
-                                    if (saves.contains(index)) {
-                                      saves
-                                          .removeWhere((item) => item == index);
-                                    } else {
-                                      saves.add(index);
-                                    }
-                                  },
-                                );
+                                _savePost(post);
                               },
                             ),
                           ],
