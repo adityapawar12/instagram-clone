@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image/image.dart' as img;
 
 class FeedPage extends StatefulWidget {
   const FeedPage({Key? key}) : super(key: key);
@@ -12,18 +12,11 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
-  // late int _userId;
-  // late String _userName = '';
-  // late String _userPhone = '';
-  // late String _userEmail = '';
-  // late String _userProfileUrl = '';
-
   List<int> likes = <int>[];
   List<int> saves = <int>[];
 
   @override
   void initState() {
-    // _loadPreferences();
     super.initState();
   }
 
@@ -36,18 +29,9 @@ class _FeedPageState extends State<FeedPage> {
       name,
       profile_image
     )
-  ''');
+  ''').order('id');
 
-  // Future<void> _loadPreferences() async {
-  //   // final prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     // _userId = prefs.getInt('userId') ?? 0;
-  //     // _userName = prefs.getString('userName') ?? "";
-  //     // _userPhone = prefs.getString('userPhone') ?? "";
-  //     // _userEmail = prefs.getString('userEmail') ?? "";
-  //     // _userProfileUrl = prefs.getString('profileImage') ?? "";
-  //   });
-  // }
+  // Future<void> _getPosts() async {final postsData = await Supabase.instance.client.rpc('fp_get_posts');setState(() {posts = postsData;});}
 
   @override
   Widget build(BuildContext context) {
@@ -80,15 +64,32 @@ class _FeedPageState extends State<FeedPage> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  ListTile(
-                    tileColor: Colors.white,
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        post['users']['profile_image'],
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                    ),
+                    child: ListTile(
+                      tileColor: Colors.white,
+                      leading: CircleAvatar(
+                        backgroundImage: NetworkImage(
+                          post['users']['profile_image'],
+                        ),
+                      ),
+                      title: Text(
+                        post['users']['name'],
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Text(
+                        post['location'],
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
                     ),
-                    title: Text(post['users']['name']),
-                    subtitle: Text(post['location']),
                   ),
                   if (post['post_type'] == 'image')
                     Container(
@@ -96,6 +97,7 @@ class _FeedPageState extends State<FeedPage> {
                         border: Border(
                           top: BorderSide(width: 0.5, color: Colors.black26),
                         ),
+                        color: Colors.white,
                       ),
                       height: 400,
                       width: double.infinity,
@@ -109,6 +111,7 @@ class _FeedPageState extends State<FeedPage> {
                         border: Border(
                           top: BorderSide(width: 0.5, color: Colors.black26),
                         ),
+                        color: Colors.white,
                       ),
                       height: 600,
                       width: double.infinity,
@@ -137,48 +140,113 @@ class _FeedPageState extends State<FeedPage> {
                         ),
                       ),
                     ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconButton(
-                            icon: likes.contains(index)
-                                ? const Icon(Icons.favorite, color: Colors.red)
-                                : const Icon(Icons.favorite_border),
-                            onPressed: () {
-                              setState(() {
-                                if (likes.contains(index)) {
-                                  likes.removeWhere((item) => item == index);
-                                } else {
-                                  likes.add(index);
-                                }
-                              });
-                            },
-                          ),
-                          const SizedBox(width: 4.0),
-                          IconButton(
-                            icon: const Icon(Icons.mode_comment_outlined),
-                            onPressed: () {},
-                          ),
-                        ],
-                      ),
-                      IconButton(
-                        icon: saves.contains(index)
-                            ? const Icon(Icons.bookmark, color: Colors.black)
-                            : const Icon(Icons.bookmark_border),
-                        onPressed: () {
-                          setState(() {
-                            if (saves.contains(index)) {
-                              saves.removeWhere((item) => item == index);
-                            } else {
-                              saves.add(index);
-                            }
-                          });
-                        },
-                      ),
-                    ],
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                IconButton(
+                                  icon: likes.contains(index)
+                                      ? const Icon(Icons.favorite,
+                                          color: Colors.red)
+                                      : const Icon(Icons.favorite_border),
+                                  onPressed: () {
+                                    setState(
+                                      () {
+                                        if (likes.contains(index)) {
+                                          likes.removeWhere(
+                                              (item) => item == index);
+                                        } else {
+                                          likes.add(index);
+                                        }
+                                      },
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 4.0),
+                                IconButton(
+                                  icon: const Icon(Icons.mode_comment_outlined),
+                                  onPressed: () {},
+                                ),
+                              ],
+                            ),
+                            IconButton(
+                              icon: saves.contains(index)
+                                  ? const Icon(Icons.bookmark,
+                                      color: Colors.black)
+                                  : const Icon(Icons.bookmark_border),
+                              onPressed: () {
+                                setState(
+                                  () {
+                                    if (saves.contains(index)) {
+                                      saves
+                                          .removeWhere((item) => item == index);
+                                    } else {
+                                      saves.add(index);
+                                    }
+                                  },
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: const <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: 14.0,
+                              ),
+                              child: Text(
+                                "Number Of Likes Or liked by",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 14.0,
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "${post['users']['name']}",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 5.0,
+                                  ),
+                                  Text(
+                                    "${post['caption']}",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               );

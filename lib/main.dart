@@ -3,16 +3,15 @@ import 'package:flutter_supa/feed.page.dart';
 import 'package:flutter_supa/login.page.dart';
 import 'package:flutter_supa/profile.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-// import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "lib/.env");
 
   await Supabase.initialize(
-    url: "https://wjzgvpftlznhngujjmze.supabase.co",
-    anonKey:
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indqemd2cGZ0bHpuaG5ndWpqbXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODEyMDQ5MTgsImV4cCI6MTk5Njc4MDkxOH0.M8QuSuQWQFcP13_1nallkST1hIlP7WJrgWPwwXs9BPc",
+    url: "${dotenv.env['SUPABASE_URL']}",
+    anonKey: "${dotenv.env['SUPABASE_ANON_KEY']}",
   );
   runApp(MyApp());
 }

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_supa/Container.page.dart';
 import 'package:flutter_supa/login.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -28,49 +26,19 @@ class _SignUpPageState extends State<SignUpPage> {
       final password = _passwordController.text;
       final profileImage = _profileImageController.text;
 
-      final user = await Supabase.instance.client.from('users').insert({
+      await Supabase.instance.client.from('users').insert({
         'name': name,
         'email': email,
         'phone': phone,
         'password': password,
         'profile_image': profileImage
       });
-
-      // if (future.isNotEmpty) {
-      //   final SharedPreferences prefs = await SharedPreferences.getInstance();
-      //   await prefs.setInt('userId', future[0]['id']);
-      //   await prefs.setString('userName', future[0]['name']);
-      //   await prefs.setString('userEmail', future[0]['email']);
-      //   await prefs.setString('userPhone', future[0]['phone']);
-      //   await prefs.setString('profileImage', future[0]['profile_image']);
-      //   // ignore: use_build_context_synchronously
-      //   Navigator.push(
-      //     context,
-      //     MaterialPageRoute(builder: (_) => const ContainerPage()),
-      //   );
-      // } else {
-      //   // ignore: use_build_context_synchronously
-      //   showDialog(
-      //     context: context,
-      //     builder: (context) => AlertDialog(
-      //       title: const Text('Error'),
-      //       content: const Text('Invalid email or password.'),
-      //       actions: [
-      //         TextButton(
-      //           onPressed: () => Navigator.pop(context),
-      //           child: const Text('OK'),
-      //         ),
-      //       ],
-      //     ),
-      //   );
-      // }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(title: const Text('Login')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -174,13 +142,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
               ),
-              // const SizedBox(
-              //   height: 16.0,
-              // ),
-              // ElevatedButton(
-              //   onPressed: _signUpUser,
-              //   child: const Text('Sign Up'),
-              // ),
               const SizedBox(
                 height: 16.0,
               ),

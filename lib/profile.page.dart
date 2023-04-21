@@ -12,10 +12,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // late int _userId = 0;
   late String _userName = '';
-  // late String _userPhone = '';
-  // late String _userEmail = '';
   late String _userProfileUrl = '';
   var _posts = [];
   var _postsCount = 0;
@@ -30,10 +27,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      // _userId = prefs.getInt('userId') ?? 0;
       _userName = prefs.getString('userName') ?? "";
-      // _userPhone = prefs.getString('userPhone') ?? "";
-      // _userEmail = prefs.getString('userEmail') ?? "";
       _userProfileUrl = prefs.getString('profileImage') ?? "";
     });
   }
@@ -100,7 +94,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               Container(
                 margin: const EdgeInsets.only(
-                    top: 40.0, left: 27.0, bottom: 15.0, right: 27.0),
+                    top: 40.0, left: 25.0, bottom: 15.0, right: 25.0),
                 child: Column(
                   children: [
                     Text(
@@ -118,7 +112,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               Container(
                 margin: const EdgeInsets.only(
-                    top: 40.0, left: 27.0, bottom: 15.0, right: 27.0),
+                    top: 40.0, left: 25.0, bottom: 15.0, right: 25.0),
                 child: Column(
                   children: [
                     Text(
@@ -136,7 +130,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               Container(
                 margin: const EdgeInsets.only(
-                    top: 40.0, left: 27.0, bottom: 15.0, right: 27.0),
+                    top: 40.0, left: 25.0, bottom: 15.0, right: 25.0),
                 child: Column(
                   children: [
                     Text(
@@ -160,11 +154,10 @@ class _ProfilePageState extends State<ProfilePage> {
           Expanded(
             child: GridView.count(
               crossAxisCount: 3,
-              crossAxisSpacing: 0.4,
-              mainAxisSpacing: 0.4,
+              crossAxisSpacing: 0,
+              mainAxisSpacing: 0,
               physics: const BouncingScrollPhysics(),
               // childAspectRatio: cardWidth / cardHeight,
-              // childAspectRatio: 1 / 1,
               children: List.generate(
                 _posts.length,
                 (index) {
@@ -174,20 +167,20 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       if (post['post_type'] == 'image')
                         SizedBox(
-                          width: 120,
-                          height: 120,
+                          width: 129,
+                          height: 129,
                           child: FittedBox(
                             fit: BoxFit.contain,
                             child: Image.network(
                               post['post_url'],
-                              height: 120,
+                              height: 129,
                             ),
                           ),
                         )
                       else if (post['post_type'] == 'video')
                         SizedBox(
-                          width: 120,
-                          height: 120,
+                          width: 129,
+                          height: 129,
                           child: FittedBox(
                             fit: BoxFit.fitWidth,
                             child: Chewie(

@@ -20,10 +20,6 @@ class _AddPageState extends State<AddPage> {
   bool _isUploading = false;
   bool _imageSelected = false;
   late int _userId = 0;
-  // late String _userName = '';
-  // late String _userPhone = '';
-  // late String _userEmail = '';
-  // late String _userProfileUrl = '';
   late String _location = '';
   late String _postType = 'image';
   late String _caption = '';
@@ -39,10 +35,6 @@ class _AddPageState extends State<AddPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _userId = prefs.getInt('userId') ?? 0;
-      // _userName = prefs.getString('userName') ?? "";
-      // _userPhone = prefs.getString('userPhone') ?? "";
-      // _userEmail = prefs.getString('userEmail') ?? "";
-      // _userProfileUrl = prefs.getString('profileImage') ?? "";
     });
   }
 
@@ -51,7 +43,7 @@ class _AddPageState extends State<AddPage> {
     if (_cameras.isNotEmpty) {
       _controller = CameraController(
         _cameras[0],
-        ResolutionPreset.ultraHigh,
+        ResolutionPreset.max,
         enableAudio: false,
       );
       await _controller.initialize();
@@ -91,15 +83,13 @@ class _AddPageState extends State<AddPage> {
       _isUploading = true;
     });
     final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final dynamic response = await Supabase.instance.client.storage
+    await Supabase.instance.client.storage
         .from('post')
         .upload('post-media/$fileName', _image);
 
     final dynamic res = Supabase.instance.client.storage
         .from('post')
         .getPublicUrl('post-media/$fileName');
-
-    // final publicURL = res;
 
     final obj = {
       'user_id': _userId,
@@ -109,8 +99,7 @@ class _AddPageState extends State<AddPage> {
       'caption': _caption,
     };
 
-    final dynamic resInsertPost =
-        await Supabase.instance.client.from('posts').insert(obj);
+    await Supabase.instance.client.from('posts').insert(obj);
 
     _clearPhoto();
 
