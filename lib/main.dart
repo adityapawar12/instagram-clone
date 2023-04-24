@@ -4,9 +4,21 @@ import 'package:flutter_supa/login.page.dart';
 import 'package:flutter_supa/profile.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:camera/camera.dart';
+
+List<CameraDescription> cameras = [];
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    // ignore: avoid_print
+    print('Error in fetching the cameras: $e');
+  }
+
   await dotenv.load(fileName: "lib/.env");
 
   await Supabase.initialize(

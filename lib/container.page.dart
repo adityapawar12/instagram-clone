@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_supa/Add.page.dart';
+import 'package:flutter_supa/createPost.page.dart';
 import 'package:flutter_supa/feed.page.dart';
 import 'package:flutter_supa/profile.page.dart';
 
@@ -10,6 +11,7 @@ class ContainerPage extends StatefulWidget {
     FeedPage(),
     AddPage(),
     ProfilePage(),
+    CreatePost(),
   ];
 
   @override
@@ -51,6 +53,13 @@ class _ContainerPageState extends State<ContainerPage> {
               color: Colors.cyan,
             ),
             label: 'Profile',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.add_circle_outline,
+              color: Colors.cyan,
+            ),
+            label: 'Add',
           ),
         ],
         currentIndex: _selectedIndex,
