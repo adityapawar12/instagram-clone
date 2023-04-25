@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
+import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FeedPage extends StatefulWidget {
@@ -12,16 +12,10 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
-  List<int> likes = <int>[];
-  List<int> saves = <int>[];
-  late int _userId = 0;
+  // USER
+  static int _userId = 0;
 
-  @override
-  void initState() {
-    _loadPreferences();
-    super.initState();
-  }
-
+  // GET USER INFO FROM SESSION
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -29,9 +23,11 @@ class _FeedPageState extends State<FeedPage> {
     });
   }
 
-  var _future = Supabase.instance.client
-      .from('posts')
-      .select<List<Map<String, dynamic>>>('''
+  // GET POSTS
+  _getPosts() {
+    var future = Supabase.instance.client
+        .from('posts')
+        .select<List<Map<String, dynamic>>>('''
     *,
     users (
       id,
@@ -45,7 +41,10 @@ class _FeedPageState extends State<FeedPage> {
       id
     )
   ''').order('id');
+    return future;
+  }
 
+  // LIKE POST
   _likePost(post) async {
     final checkLike = await Supabase.instance.client
         .from('likes')
@@ -60,22 +59,7 @@ class _FeedPageState extends State<FeedPage> {
         },
       );
       setState(() {
-        _future = Supabase.instance.client
-            .from('posts')
-            .select<List<Map<String, dynamic>>>('''
-              *,
-              users (
-                id,
-                name,
-                profile_image
-              ),
-              likes (
-                id
-              ),
-              saves (
-                id
-              )
-            ''').order('id');
+        _getPosts();
       });
     } else if (checkLike.length < 1) {
       await Supabase.instance.client.from('likes').insert(
@@ -85,26 +69,12 @@ class _FeedPageState extends State<FeedPage> {
         },
       );
       setState(() {
-        _future = Supabase.instance.client
-            .from('posts')
-            .select<List<Map<String, dynamic>>>('''
-              *,
-              users (
-                id,
-                name,
-                profile_image
-              ),
-              likes (
-                id
-              ),
-              saves (
-                id
-              )
-            ''').order('id');
+        _getPosts();
       });
     }
   }
 
+  // SAVE POST
   _savePost(post) async {
     final checkSave = await Supabase.instance.client
         .from('saves')
@@ -119,22 +89,7 @@ class _FeedPageState extends State<FeedPage> {
         },
       );
       setState(() {
-        _future = Supabase.instance.client
-            .from('posts')
-            .select<List<Map<String, dynamic>>>('''
-              *,
-              users (
-                id,
-                name,
-                profile_image
-              ),
-              likes (
-                id
-              ),
-              saves (
-                id
-              )
-            ''').order('id');
+        _getPosts();
       });
     } else if (checkSave.length < 1) {
       await Supabase.instance.client.from('saves').insert(
@@ -144,32 +99,49 @@ class _FeedPageState extends State<FeedPage> {
         },
       );
       setState(() {
-        _future = Supabase.instance.client
-            .from('posts')
-            .select<List<Map<String, dynamic>>>('''
-              *,
-              users (
-                id,
-                name,
-                profile_image
-              ),
-              likes (
-                id
-              ),
-              saves (
-                id
-              )
-            ''').order('id');
+        _getPosts();
       });
     }
   }
 
-  // Future<void> _getPosts() async {final postsData = await Supabase.instance.client.rpc('fp_get_posts');setState(() {posts = postsData;});}
+  // CHECK IF POST IS LIKED OR NOT
+  Future<bool> _isPostLiked(post) async {
+    final checkLike = await Supabase.instance.client
+        .from('likes')
+        .select()
+        .eq('user_id', _userId)
+        .eq('post_id', post['id']);
+    if (checkLike.length > 0) {
+      return true;
+    }
+    return false;
+  }
+
+  // CHECK IF POST IS SAVED OR NOT
+  Future<bool> _isPostSaved(post) async {
+    final checkSave = await Supabase.instance.client
+        .from('saves')
+        .select()
+        .eq('user_id', _userId)
+        .eq('post_id', post['id']);
+    if (checkSave.length > 0) {
+      return true;
+    }
+    return false;
+  }
+
+  // LIFECYCLE METHODS
+  @override
+  void initState() {
+    _loadPreferences();
+    super.initState();
+  }
+  // LIFECYCLE METHODS
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _future,
+      future: _getPosts(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Scaffold(
@@ -285,15 +257,25 @@ class _FeedPageState extends State<FeedPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                IconButton(
-                                  icon: post['likes'].length > 0
-                                      ? const Icon(Icons.favorite,
-                                          color: Colors.red)
-                                      : const Icon(Icons.favorite_border),
-                                  onPressed: () {
-                                    _likePost(post);
-                                  },
-                                ),
+                                FutureBuilder<dynamic>(
+                                    future: _isPostLiked(post),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        return IconButton(
+                                          icon: snapshot.data || false
+                                              ? const Icon(Icons.favorite,
+                                                  color: Colors.red)
+                                              : const Icon(
+                                                  Icons.favorite_border),
+                                          onPressed: () {
+                                            _likePost(post);
+                                          },
+                                        );
+                                      } else {
+                                        return const Icon(
+                                            Icons.favorite_border);
+                                      }
+                                    }),
                                 const SizedBox(width: 4.0),
                                 IconButton(
                                   icon: const Icon(Icons.mode_comment_outlined),
@@ -301,27 +283,35 @@ class _FeedPageState extends State<FeedPage> {
                                 ),
                               ],
                             ),
-                            IconButton(
-                              icon: post['saves'].length > 0
-                                  ? const Icon(Icons.bookmark,
-                                      color: Colors.black)
-                                  : const Icon(Icons.bookmark_border),
-                              onPressed: () {
-                                _savePost(post);
-                              },
-                            ),
+                            FutureBuilder<dynamic>(
+                                future: _isPostSaved(post),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    return IconButton(
+                                      icon: snapshot.data || false
+                                          ? const Icon(Icons.bookmark,
+                                              color: Colors.black)
+                                          : const Icon(Icons.bookmark_border),
+                                      onPressed: () {
+                                        _savePost(post);
+                                      },
+                                    );
+                                  } else {
+                                    return const Icon(Icons.bookmark_border);
+                                  }
+                                }),
                           ],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const <Widget>[
+                          children: <Widget>[
                             Padding(
-                              padding: EdgeInsets.only(
+                              padding: const EdgeInsets.only(
                                 left: 14.0,
                               ),
                               child: Text(
-                                "Number Of Likes Or liked by",
-                                style: TextStyle(
+                                "${post['likes'].length.toString()} Likes",
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                 ),

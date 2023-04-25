@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
+import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -12,18 +12,15 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  // USER
   late String _userName = '';
   late String _userProfileUrl = '';
+
+  // POSTS
   var _posts = [];
   var _postsCount = 0;
 
-  @override
-  void initState() {
-    _loadPreferences();
-    _getPosts();
-    super.initState();
-  }
-
+  // GET USER INFO FROM SESSION
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -32,6 +29,7 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  // GET POSTS
   Future<dynamic> _getPosts() async {
     final prefs = await SharedPreferences.getInstance();
     _posts = await Supabase.instance.client
@@ -48,6 +46,15 @@ class _ProfilePageState extends State<ProfilePage> {
       _postsCount = _posts.length;
     });
   }
+
+  // LIFECYCLE METHODS
+  @override
+  void initState() {
+    _loadPreferences();
+    _getPosts();
+    super.initState();
+  }
+  // LIFECYCLE METHODS
 
   @override
   Widget build(BuildContext context) {
@@ -76,9 +83,18 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   children: [
                     if (_userProfileUrl.isNotEmpty)
-                      Image.network(
-                        _userProfileUrl,
-                        height: 90,
+                      ClipOval(
+                        child: Container(
+                          height: 90,
+                          width: 90,
+                          color: const Color.fromARGB(255, 204, 204, 204),
+                          child: SizedBox(
+                            child: Image.network(
+                              _userProfileUrl,
+                              height: 90,
+                            ),
+                          ),
+                        ),
                       )
                     else
                       const Icon(

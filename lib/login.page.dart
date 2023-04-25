@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_supa/Container.page.dart';
 import 'package:flutter_supa/signup.page.dart';
+import 'package:flutter_supa/Container.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,11 +12,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  // FORM
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void _login() async {
+  // LOGIN
+  void _login(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text;
       final password = _passwordController.text;
@@ -59,6 +61,50 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
+
+  // CHECK USER LOGIN
+  void _checkLogin(BuildContext context) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    final int? userId = prefs.getInt('userId');
+
+    if (userId != null) {
+      final future = await Supabase.instance.client
+          .from('users')
+          .select<List<Map<String, dynamic>>>(
+              '''id, name, email, phone, profile_image''').eq('id', userId);
+
+      if (future.isNotEmpty) {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+        await prefs.setInt('userId', future[0]['id']);
+        await prefs.setString('userName', future[0]['name']);
+        await prefs.setString('userEmail', future[0]['email']);
+        await prefs.setString('userPhone', future[0]['phone']);
+        await prefs.setString('profileImage', future[0]['profile_image']);
+        // ignore: use_build_context_synchronously
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ContainerPage()),
+        );
+      }
+      // ignore: use_build_context_synchronously
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const ContainerPage()),
+      );
+    }
+  }
+
+  // LIFECYCLE METHODS
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkLogin(context);
+    });
+  }
+  // LIFECYCLE METHODS
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +174,9 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _login,
+                  onPressed: () {
+                    _login(context);
+                  },
                   child: const Text('LOGIN'),
                 ),
               ),
