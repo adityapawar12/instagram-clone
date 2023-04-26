@@ -32,7 +32,7 @@ class _FeedPageState extends State<FeedPage> {
     users (
       id,
       name,
-      profile_image
+      profile_image_url
     ),
     likes (
       id
@@ -175,11 +175,17 @@ class _FeedPageState extends State<FeedPage> {
                     ),
                     child: ListTile(
                       tileColor: Colors.white,
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(
-                          post['users']['profile_image'],
-                        ),
-                      ),
+                      leading: post['users']['profile_image_url'] != null &&
+                              post['users']['profile_image_url'].length > 0
+                          ? CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                post['users']['profile_image_url'],
+                              ),
+                            )
+                          : const CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                  'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png'),
+                            ),
                       title: Text(
                         post['users']['name'],
                         style: const TextStyle(

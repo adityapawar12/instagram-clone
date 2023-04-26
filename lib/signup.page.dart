@@ -19,7 +19,11 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   // FORM
   final _formKey = GlobalKey<FormState>();
+
+  // FORM CONTROLS
   final _nameController = TextEditingController();
+  final _userTagIdController = TextEditingController();
+  final _bioController = TextEditingController();
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -44,36 +48,36 @@ class _SignUpPageState extends State<SignUpPage> {
   // ON CAMERA SELECTED
   void onNewCameraSelected(CameraDescription cameraDescription) async {
     final previousCameraController = controller;
-    // Instantiating the camera controller
+    // INSTANTIATING THE CAMERA CONTROLLER
     final CameraController cameraController = CameraController(
       cameraDescription,
       currentResolutionPreset,
       imageFormatGroup: ImageFormatGroup.jpeg,
     );
 
-    // Dispose the previous controller
+    // DISPOSE THE PREVIOUS CONTROLLER
     await previousCameraController?.dispose();
 
-    // Replace with the new controller
+    // REPLACE WITH THE NEW CONTROLLER
     if (mounted) {
       setState(() {
         controller = cameraController;
       });
     }
 
-    // Update UI if controller updated
+    // UPDATE UI IF CONTROLLER UPDATED
     cameraController.addListener(() {
       if (mounted) setState(() {});
     });
 
-    // Initialize controller
+    // INITIALIZE CONTROLLER
     try {
       await cameraController.initialize();
     } on CameraException catch (e) {
       log('Error initializing camera: $e');
     }
 
-    // Update the Boolean
+    // UPDATE THE BOOLEAN
     if (mounted) {
       setState(() {
         _isCameraInitialized = controller!.value.isInitialized;
@@ -143,7 +147,6 @@ class _SignUpPageState extends State<SignUpPage> {
       return false;
     }
     return true;
-    // Do something with the file...
   }
 
   // SIGN UP
@@ -151,6 +154,81 @@ class _SignUpPageState extends State<SignUpPage> {
     bool isFileReady = await _checkFile(_image);
 
     if (_formKey.currentState!.validate()) {
+      final userTagNameExists = await Supabase.instance.client
+          .from('users')
+          .select<List<Map<String, dynamic>>>('id')
+          .eq('user_tag_id', _userTagIdController.text);
+
+      if (userTagNameExists.isNotEmpty) {
+        // ignore: use_build_context_synchronously
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Tag Name Already Exists!'),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                },
+                child: const Text('Ok'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      final emailExists = await Supabase.instance.client
+          .from('users')
+          .select<List<Map<String, dynamic>>>('id')
+          .eq('email', _emailController.text);
+
+      if (emailExists.isNotEmpty) {
+        // ignore: use_build_context_synchronously
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Email Address Already Used By Someone Else!'),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                },
+                child: const Text('Ok'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      final phoneExists = await Supabase.instance.client
+          .from('users')
+          .select<List<Map<String, dynamic>>>('id')
+          .eq('phone', _phoneController.text);
+
+      if (phoneExists.isNotEmpty) {
+        // ignore: use_build_context_synchronously
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Phone Number Already Used By Someone Else!'),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                },
+                child: const Text('Ok'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
       if (isFileReady) {
         setState(() {
           _isUploading = true;
@@ -165,15 +243,19 @@ class _SignUpPageState extends State<SignUpPage> {
             .getPublicUrl('profile-image/$fileName');
 
         final name = _nameController.text;
+        final userTagId = _userTagIdController.text;
+        final bio = _bioController.text;
         final phone = _phoneController.text;
         final email = _emailController.text;
         final password = _passwordController.text;
         final obj = {
           'name': name,
+          'user_tag_id': userTagId,
+          'bio': bio,
           'email': email,
           'phone': phone,
           'password': password,
-          'profile_image': profileImageUrl
+          'profile_image_url': profileImageUrl
         };
 
         final newUser = await Supabase.instance.client
@@ -183,6 +265,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
         _clearPhoto();
         _nameController.clear();
+        _userTagIdController.clear();
+        _bioController.clear();
         _phoneController.clear();
         _emailController.clear();
         _passwordController.clear();
@@ -192,9 +276,17 @@ class _SignUpPageState extends State<SignUpPage> {
 
           await prefs.setInt('userId', newUser[0]['id']);
           await prefs.setString('userName', newUser[0]['name']);
+          await prefs.setString('userTagId', newUser[0]['user_tag_id']);
+          if (newUser[0]['bio'] != null && newUser[0]['bio'].length > 0) {
+            await prefs.setString('bio', newUser[0]['bio']);
+          }
           await prefs.setString('userEmail', newUser[0]['email']);
           await prefs.setString('userPhone', newUser[0]['phone']);
-          await prefs.setString('profileImage', newUser[0]['profile_image']);
+          if (newUser[0]['profile_image_url'] != null &&
+              newUser[0]['profile_image_url'].length > 0) {
+            await prefs.setString(
+                'profileImageUrl', newUser[0]['profile_image_url']);
+          }
           // ignore: use_build_context_synchronously
           Navigator.push(
             context,
@@ -220,6 +312,99 @@ class _SignUpPageState extends State<SignUpPage> {
         setState(() {
           _isUploading = false;
         });
+      } else {
+        // ignore: use_build_context_synchronously
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Select Profile Image!'),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  final name = _nameController.text;
+                  final userTagId = _userTagIdController.text;
+                  final bio = _bioController.text;
+                  final phone = _phoneController.text;
+                  final email = _emailController.text;
+                  final password = _passwordController.text;
+                  final obj = {
+                    'name': name,
+                    'user_tag_id': userTagId,
+                    'bio': bio,
+                    'email': email,
+                    'phone': phone,
+                    'password': password,
+                  };
+
+                  final newUser = await Supabase.instance.client
+                      .from('users')
+                      .insert(obj)
+                      .select("*");
+
+                  _clearPhoto();
+                  _nameController.clear();
+                  _userTagIdController.clear();
+                  _bioController.clear();
+                  _phoneController.clear();
+                  _emailController.clear();
+                  _passwordController.clear();
+
+                  if (newUser.isNotEmpty) {
+                    final SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+
+                    await prefs.setInt('userId', newUser[0]['id']);
+                    await prefs.setString('userName', newUser[0]['name']);
+                    await prefs.setString(
+                        'userTagId', newUser[0]['user_tag_id']);
+                    if (newUser[0]['bio'] != null &&
+                        newUser[0]['bio'].length > 0) {
+                      await prefs.setString('bio', newUser[0]['bio']);
+                    }
+                    await prefs.setString('userEmail', newUser[0]['email']);
+                    await prefs.setString('userPhone', newUser[0]['phone']);
+                    if (newUser[0]['profile_image_url'] != null &&
+                        newUser[0]['profile_image_url'].length > 0) {
+                      await prefs.setString(
+                          'profileImageUrl', newUser[0]['profile_image_url']);
+                    }
+                    // ignore: use_build_context_synchronously
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ContainerPage()),
+                    );
+                  } else {
+                    // ignore: use_build_context_synchronously
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Error'),
+                        content: const Text('Something Went Wrong!'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  setState(() {
+                    _isUploading = false;
+                  });
+                },
+                child: const Text('Continue'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Select Profile Image'),
+              ),
+            ],
+          ),
+        );
       }
     }
   }
@@ -231,20 +416,26 @@ class _SignUpPageState extends State<SignUpPage> {
     final int? userId = prefs.getInt('userId');
 
     if (userId != null) {
-      final future = await Supabase.instance.client
-          .from('users')
-          .select<List<Map<String, dynamic>>>(
-              '''id, name, email, phone, profile_image''').eq('id', userId);
+      final future = await Supabase.instance.client.from('users').select<
+              List<Map<String, dynamic>>>(
+          '''id, name, user_tag_id, bio, email, phone, profile_image_url''').eq('id', userId);
 
       if (future.isNotEmpty) {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
 
         await prefs.setInt('userId', future[0]['id']);
         await prefs.setString('userName', future[0]['name']);
+        await prefs.setString('userTagId', future[0]['user_tag_id']);
+        if (future[0]['bio'] != null && future[0]['bio'].length > 0) {
+          await prefs.setString('bio', future[0]['bio']);
+        }
         await prefs.setString('userEmail', future[0]['email']);
         await prefs.setString('userPhone', future[0]['phone']);
-        await prefs.setString('profileImage', future[0]['profile_image']);
-
+        if (future[0]['profile_image_url'] != null &&
+            future[0]['profile_image_url'].length > 0) {
+          await prefs.setString(
+              'profileImageUrl', future[0]['profile_image_url']);
+        }
         // ignore: use_build_context_synchronously
         Navigator.push(
           context,
@@ -272,16 +463,16 @@ class _SignUpPageState extends State<SignUpPage> {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final CameraController? cameraController = controller;
 
-    // App state changed before we got the chance to initialize.
+    // APP STATE CHANGED BEFORE WE GOT THE CHANCE TO INITIALIZE.
     if (cameraController == null || !cameraController.value.isInitialized) {
       return;
     }
 
     if (state == AppLifecycleState.inactive) {
-      // Free up memory when camera not active
+      // FREE UP MEMORY WHEN CAMERA NOT ACTIVE
       cameraController.dispose();
     } else if (state == AppLifecycleState.resumed) {
-      // Reinitialize the camera with same properties
+      // REINITIALIZE THE CAMERA WITH THE SAME PROPERTIES
       onNewCameraSelected(cameraController.description);
     }
   }
@@ -440,6 +631,14 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             TextFormField(
                               controller: _nameController,
+                              onChanged: (value) {
+                                var userTagName = value
+                                    .toLowerCase()
+                                    .replaceAll(' ', '')
+                                    .replaceAll('@', '');
+
+                                _userTagIdController.text = userTagName;
+                              },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your name';
@@ -461,16 +660,58 @@ class _SignUpPageState extends State<SignUpPage> {
                               height: 16.0,
                             ),
                             TextFormField(
-                              controller: _phoneController,
+                              controller: _userTagIdController,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your phone';
+                                  return 'Please enter your tag name';
                                 }
                                 return null;
                               },
                               decoration: const InputDecoration(
-                                labelText: 'Phone',
-                                hintText: 'Phone',
+                                labelText: 'Tag Name',
+                                hintText: 'Tag Name',
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.red,
+                                    width: 5.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 16.0,
+                            ),
+                            TextFormField(
+                              controller: _bioController,
+                              decoration: const InputDecoration(
+                                labelText: 'Bio',
+                                hintText: 'Bio',
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.red,
+                                    width: 5.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 16.0,
+                            ),
+                            TextFormField(
+                              controller: _phoneController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your phone number';
+                                }
+                                final phoneRegex = RegExp(r'^\+?[0-9]{10,12}$');
+                                if (!phoneRegex.hasMatch(value)) {
+                                  return 'Please enter a valid phone number';
+                                }
+                                return null;
+                              },
+                              decoration: const InputDecoration(
+                                labelText: 'Phone Number',
+                                hintText: 'Phone Number',
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Colors.red,
@@ -486,13 +727,18 @@ class _SignUpPageState extends State<SignUpPage> {
                               controller: _emailController,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your email';
+                                  return 'Please enter your email address';
+                                }
+                                final emailRegex = RegExp(
+                                    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                                if (!emailRegex.hasMatch(value)) {
+                                  return 'Please enter a valid email address';
                                 }
                                 return null;
                               },
                               decoration: const InputDecoration(
-                                labelText: 'Email',
-                                hintText: 'Email',
+                                labelText: 'Email Address',
+                                hintText: 'Email Address',
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Colors.red,
@@ -509,9 +755,53 @@ class _SignUpPageState extends State<SignUpPage> {
                               obscureText: true,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your password';
+                                  return 'Please enter a password';
                                 }
-                                return null;
+                                final passwordRegex = RegExp(
+                                    r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$');
+
+                                // Evaluate password strength
+                                int strengthScore = 0;
+                                if (passwordRegex.hasMatch(value)) {
+                                  strengthScore++;
+                                }
+                                if (value.length >= 10) {
+                                  strengthScore++;
+                                }
+                                if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                                    .hasMatch(value)) {
+                                  strengthScore++;
+                                }
+
+                                // if (!passwordRegex.hasMatch(value)) {
+                                //   return 'Password must be at least 8 characters long, and contain at least one uppercase letter, one lowercase letter, and one digit.';
+                                // }
+
+                                String strength;
+                                switch (strengthScore) {
+                                  case 1:
+                                    strength = 'Weak';
+                                    return '''Weak Password!
+Password must be at least 8 characters long, and contain at least one uppercase letter, 
+one lowercase letter, and one digit.''';
+                                  case 2:
+                                    strength = 'Moderate';
+                                    return '''Moderate Password!
+Password must be at least 8 characters long, and contain at least one uppercase letter,
+one lowercase letter, and one digit.''';
+                                  case 3:
+                                    strength = 'Strong';
+                                    return null;
+                                  default:
+                                    strength = 'Very Weak';
+                                    return '''Very Weak Password!
+Password must be at least 8 characters long, and contain at least one uppercase letter,
+one lowercase letter, and one digit.''';
+                                }
+
+                                // print('Password Strength: $strength');
+
+                                // return null;
                               },
                               decoration: const InputDecoration(
                                 labelText: 'Password',

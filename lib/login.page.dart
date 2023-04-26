@@ -14,20 +14,70 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   // FORM
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _emailOrPhoneController = TextEditingController();
   final _passwordController = TextEditingController();
 
   // LOGIN
   void _login(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      final email = _emailController.text;
+      final emailOrPhone = _emailOrPhoneController.text;
       final password = _passwordController.text;
+
+      final checkEmailOrPhoneExists = await Supabase.instance.client
+              .from('users')
+              .select<List<Map<String, dynamic>>>('id')
+              .eq('email', emailOrPhone)
+          // .eq('phone', emailOrPhone)
+          ;
+
+      if (checkEmailOrPhoneExists.isEmpty) {
+        // ignore: use_build_context_synchronously
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Email/Phone does not exist.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      final checkPasswordViability = await Supabase.instance.client
+          .from('users')
+          .select<List<Map<String, dynamic>>>('id')
+          .eq('password', password)
+          .eq('email', emailOrPhone);
+
+      if (checkEmailOrPhoneExists.isNotEmpty &&
+          checkPasswordViability.isEmpty) {
+        // ignore: use_build_context_synchronously
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Wrong Password!'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
 
       final future = await Supabase.instance.client
           .from('users')
           .select<List<Map<String, dynamic>>>(
-              '''id, name, email, phone, profile_image''')
-          .eq('email', email)
+              '''id, name, user_tag_id, bio, email, phone, profile_image_url''')
+          .eq('email', emailOrPhone)
           .eq('password', password);
 
       if (future.isNotEmpty) {
@@ -35,9 +85,17 @@ class _LoginPageState extends State<LoginPage> {
 
         await prefs.setInt('userId', future[0]['id']);
         await prefs.setString('userName', future[0]['name']);
+        await prefs.setString('userTagId', future[0]['user_tag_id']);
+        if (future[0]['bio'] != null && future[0]['bio'].length > 0) {
+          await prefs.setString('bio', future[0]['bio']);
+        }
         await prefs.setString('userEmail', future[0]['email']);
         await prefs.setString('userPhone', future[0]['phone']);
-        await prefs.setString('profileImage', future[0]['profile_image']);
+        if (future[0]['profile_image_url'] != null &&
+            future[0]['profile_image_url'].length > 0) {
+          await prefs.setString(
+              'profileImageUrl', future[0]['profile_image_url']);
+        }
         // ignore: use_build_context_synchronously
         Navigator.push(
           context,
@@ -49,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('Error'),
-            content: const Text('Invalid email or password.'),
+            content: const Text('Something Went Wrong!'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -69,19 +127,26 @@ class _LoginPageState extends State<LoginPage> {
     final int? userId = prefs.getInt('userId');
 
     if (userId != null) {
-      final future = await Supabase.instance.client
-          .from('users')
-          .select<List<Map<String, dynamic>>>(
-              '''id, name, email, phone, profile_image''').eq('id', userId);
+      final future = await Supabase.instance.client.from('users').select<
+              List<Map<String, dynamic>>>(
+          '''id, name, user_tag_id, bio, email, phone, profile_image_url''').eq('id', userId);
 
       if (future.isNotEmpty) {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
 
         await prefs.setInt('userId', future[0]['id']);
         await prefs.setString('userName', future[0]['name']);
+        await prefs.setString('userTagId', future[0]['user_tag_id']);
+        if (future[0]['bio'] != null && future[0]['bio'].length > 0) {
+          await prefs.setString('bio', future[0]['bio']);
+        }
         await prefs.setString('userEmail', future[0]['email']);
         await prefs.setString('userPhone', future[0]['phone']);
-        await prefs.setString('profileImage', future[0]['profile_image']);
+        if (future[0]['profile_image_url'] != null &&
+            future[0]['profile_image_url'].length > 0) {
+          await prefs.setString(
+              'profileImageUrl', future[0]['profile_image_url']);
+        }
         // ignore: use_build_context_synchronously
         Navigator.push(
           context,
@@ -127,16 +192,16 @@ class _LoginPageState extends State<LoginPage> {
                 height: 16.0,
               ),
               TextFormField(
-                controller: _emailController,
+                controller: _emailOrPhoneController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
+                    return 'Please enter your email/phone';
                   }
                   return null;
                 },
                 decoration: const InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Email',
+                  labelText: 'Email/Phone',
+                  hintText: 'Email/Phone',
                   border: OutlineInputBorder(
                     borderSide: BorderSide(
                       color: Colors.red,
