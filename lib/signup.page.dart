@@ -777,23 +777,18 @@ class _SignUpPageState extends State<SignUpPage> {
                                 //   return 'Password must be at least 8 characters long, and contain at least one uppercase letter, one lowercase letter, and one digit.';
                                 // }
 
-                                String strength;
                                 switch (strengthScore) {
                                   case 1:
-                                    strength = 'Weak';
                                     return '''Weak Password!
 Password must be at least 8 characters long, and contain at least one uppercase letter, 
 one lowercase letter, and one digit.''';
                                   case 2:
-                                    strength = 'Moderate';
                                     return '''Moderate Password!
 Password must be at least 8 characters long, and contain at least one uppercase letter,
 one lowercase letter, and one digit.''';
                                   case 3:
-                                    strength = 'Strong';
                                     return null;
                                   default:
-                                    strength = 'Very Weak';
                                     return '''Very Weak Password!
 Password must be at least 8 characters long, and contain at least one uppercase letter,
 one lowercase letter, and one digit.''';

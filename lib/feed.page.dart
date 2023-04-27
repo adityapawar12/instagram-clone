@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'comments.page.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({Key? key}) : super(key: key);
@@ -285,7 +286,19 @@ class _FeedPageState extends State<FeedPage> {
                                 const SizedBox(width: 4.0),
                                 IconButton(
                                   icon: const Icon(Icons.mode_comment_outlined),
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    final prefs =
+                                        await SharedPreferences.getInstance();
+                                    prefs.setInt('commentPostId', post['id']);
+                                    // ignore: use_build_context_synchronously
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const CommentsPage(),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),

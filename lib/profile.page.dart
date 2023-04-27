@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_supa/login.page.dart';
@@ -135,7 +133,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: Container(
                             height: 90,
                             width: 90,
-                            color: Color.fromARGB(255, 243, 243, 243),
+                            color: const Color.fromARGB(255, 243, 243, 243),
                             child: SizedBox(
                               child: Image.network(
                                 _userProfileUrl,
@@ -149,7 +147,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: Container(
                             height: 90,
                             width: 90,
-                            color: Color.fromARGB(255, 243, 243, 243),
+                            color: const Color.fromARGB(255, 243, 243, 243),
                             child: SizedBox(
                               child: Image.network(
                                 'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
