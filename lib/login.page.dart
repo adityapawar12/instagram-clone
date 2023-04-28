@@ -239,10 +239,18 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                      Colors.black,
+                    ),
+                  ),
                   onPressed: () {
                     _login(context);
                   },
-                  child: const Text('LOGIN'),
+                  child: const Text(
+                    'LOGIN',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
               const SizedBox(
@@ -257,7 +265,10 @@ class _LoginPageState extends State<LoginPage> {
                       MaterialPageRoute(builder: (_) => const SignUpPage()),
                     );
                   },
-                  child: const Text('Sign Up'),
+                  child: const Text(
+                    'Sign Up',
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
               ),
             ],

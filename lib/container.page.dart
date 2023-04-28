@@ -37,27 +37,27 @@ class _ContainerPageState extends State<ContainerPage> {
           BottomNavigationBarItem(
             icon: Icon(
               Icons.home,
-              color: Colors.cyan,
+              color: Colors.black,
             ),
-            label: 'Home',
+            label: '',
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.add_circle_outline,
-              color: Colors.cyan,
+              color: Colors.black,
             ),
-            label: 'Add',
+            label: '',
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.person_2,
-              color: Colors.cyan,
+              color: Colors.black,
             ),
-            label: 'Profile',
+            label: '',
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: Colors.black,
         onTap: _onItemTapped,
       ),
     );

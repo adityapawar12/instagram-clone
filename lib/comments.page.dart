@@ -63,6 +63,7 @@ class _CommentsPageState extends State<CommentsPage> {
           )
         ''')
         .eq('post_id', _postId)
+        .eq('is_reply', false)
         .order('id');
     return future;
   }
@@ -72,7 +73,8 @@ class _CommentsPageState extends State<CommentsPage> {
     var obj = {
       'user_id': _userId,
       'post_id': _postId,
-      'comment': _commentController.text
+      'comment': _commentController.text,
+      'is_reply': false
     };
     await Supabase.instance.client.from('comments').insert(obj);
 
@@ -83,49 +85,73 @@ class _CommentsPageState extends State<CommentsPage> {
     });
   }
 
-  // // LIKE COMMENT
-  // _likeComment(comment) async {
-  //   final checkLike = await Supabase.instance.client
-  //       .from('comment_likes')
-  //       .select()
-  //       .eq('user_id', _userId)
-  //       .eq('comment_id', comment['id']);
-  //   if (checkLike.length > 0) {
-  //     await Supabase.instance.client.from('comment_likes').delete().match(
-  //       {
-  //         'user_id': _userId,
-  //         'comment_id': comment['id'],
-  //       },
-  //     );
-  //     setState(() {
-  //       _getComments();
-  //     });
-  //   } else if (checkLike.length < 1) {
-  //     await Supabase.instance.client.from('comment_likes').insert(
-  //       {
-  //         'user_id': _userId,
-  //         'comment_id': comment['id'],
-  //       },
-  //     );
-  //     setState(() {
-  //       _getComments();
-  //     });
-  //   }
-  // }
+  // LIKE COMMENT
+  _likeComment(comment) async {
+    final checkLike = await Supabase.instance.client
+        .from('comment_likes')
+        .select()
+        .eq('user_id', _userId)
+        .eq('comment_id', comment['id']);
+    if (checkLike.length > 0) {
+      await Supabase.instance.client.from('comment_likes').delete().match(
+        {
+          'user_id': _userId,
+          'comment_id': comment['id'],
+        },
+      );
+      setState(() {
+        _getComments();
+      });
+    } else if (checkLike.length < 1) {
+      await Supabase.instance.client.from('comment_likes').insert(
+        {
+          'user_id': _userId,
+          'comment_id': comment['id'],
+        },
+      );
+      setState(() {
+        _getComments();
+      });
+    }
+  }
 
-  // // CHECK IF COMMENT IS LIKED OR NOT
-  // Future<bool> _isCommentLiked(comment) async {
-  //   final checkLike = await Supabase.instance.client
-  //       .from('comment_likes')
-  //       .select()
-  //       .eq('user_id', _userId)
-  //       .eq('comment_id', comment['id']);
-  //   if (checkLike.length > 0) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
+  // CHECK IF COMMENT IS LIKED OR NOT
+  Future<bool> _isCommentLiked(comment) async {
+    final checkLike = await Supabase.instance.client
+        .from('comment_likes')
+        .select()
+        .eq('user_id', _userId)
+        .eq('comment_id', comment['id']);
+    if (checkLike.length > 0) {
+      return true;
+    }
+    return false;
+  }
 
+  // GET COMMENTS
+  _getCommentsLikeCount(comment) {
+    final future = Supabase.instance.client
+        .from('comment_likes')
+        .select('id')
+        .eq('comment_id', comment['id']);
+    return future;
+  }
+
+  // REPLY ON COMMENT
+  // _reply(comment) async {
+  //   var obj = {
+  //     'user_id': _userId,
+  //     'post_id': _postId,
+  //     'comment': _commentController.text,
+  //     'comment_id': comment['id'],
+  //     'is_reply': true
+  //   };
+  //   await Supabase.instance.client.from('comments').insert(obj);
+  //   _commentController.clear();
+  //   setState(() {
+  //     _getComments();
+  //   });
+  // }
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Map<String, dynamic>>>(
@@ -288,13 +314,9 @@ class _CommentsPageState extends State<CommentsPage> {
                     itemCount: comments.length,
                     itemBuilder: ((context, index) {
                       final comment = comments[index];
-                      log(comment.toString());
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          // Text(
-                          //   comment['comment'],
-                          // ),
                           SizedBox(
                             height: 60,
                             child: Row(
@@ -392,6 +414,68 @@ class _CommentsPageState extends State<CommentsPage> {
                                 ),
                                 Container(
                                   width: 16,
+                                ),
+                                SizedBox(
+                                  width: 50,
+                                  height: 60,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 50,
+                                        height: 40,
+                                        child: FutureBuilder<dynamic>(
+                                          future: _isCommentLiked(comment),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.hasData) {
+                                              return IconButton(
+                                                icon: snapshot.data || false
+                                                    ? const Icon(
+                                                        Icons.favorite,
+                                                        color: Colors.red,
+                                                        size: 20,
+                                                      )
+                                                    : const Icon(
+                                                        Icons.favorite_border,
+                                                        color: Colors.grey,
+                                                        size: 20,
+                                                      ),
+                                                onPressed: () {
+                                                  _likeComment(comment);
+                                                },
+                                              );
+                                            } else {
+                                              return const Icon(
+                                                Icons.favorite_border,
+                                                size: 20,
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 50,
+                                        height: 20,
+                                        alignment: Alignment.center,
+                                        child: FutureBuilder<dynamic>(
+                                          future:
+                                              _getCommentsLikeCount(comment),
+                                          builder: (context, snapshot) {
+                                            log(snapshot.toString());
+                                            if (snapshot.hasData) {
+                                              return Text(
+                                                snapshot.data.length.toString(),
+                                              );
+                                            } else {
+                                              return const Text('0');
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),

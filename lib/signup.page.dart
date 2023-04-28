@@ -815,10 +815,19 @@ one lowercase letter, and one digit.''';
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                    Colors.black,
+                                  ),
+                                ),
                                 onPressed: () {
                                   _signUpUser(context);
                                 },
-                                child: const Text('SIGN UP'),
+                                child: const Text(
+                                  'SIGN UP',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ),
                             ),
                             const SizedBox(
@@ -834,7 +843,10 @@ one lowercase letter, and one digit.''';
                                         builder: (_) => const LoginPage()),
                                   );
                                 },
-                                child: const Text('Login'),
+                                child: const Text(
+                                  'Login',
+                                  style: TextStyle(color: Colors.black),
+                                ),
                               ),
                             ),
                           ],

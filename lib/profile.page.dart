@@ -116,7 +116,17 @@ class _ProfilePageState extends State<ProfilePage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [TextButton(onPressed: _logOut, child: const Text('Logout'))],
+        actions: [
+          TextButton(
+            onPressed: _logOut,
+            child: const Text(
+              'Logout',
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ],
       ),
       body: DefaultTabController(
         length: 2,
