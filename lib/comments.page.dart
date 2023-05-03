@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,6 +14,10 @@ class _CommentsPageState extends State<CommentsPage> {
   late int? _postId = 0;
   late int? _userId = 0;
   late String? _userProfileUrl = '';
+  late bool? _shouldWaitForComments = true;
+  Timer? _timer;
+  late bool? _isReplying = false;
+  late dynamic _selectedComment;
 
   // FORM
   final _commentController = TextEditingController();
@@ -21,6 +25,7 @@ class _CommentsPageState extends State<CommentsPage> {
   @override
   void initState() {
     _getPostId();
+    _waitSevenSeconds();
     super.initState();
   }
 
@@ -56,9 +61,10 @@ class _CommentsPageState extends State<CommentsPage> {
         .from('comments')
         .select<List<Map<String, dynamic>>>('''
           *,
-          users (
+    users!comments_user_id_fkey (
             id,
             name,
+            user_tag_id,
             profile_image_url
           )
         ''')
@@ -70,19 +76,21 @@ class _CommentsPageState extends State<CommentsPage> {
 
   // COMMENT ON POST
   _comment() async {
-    var obj = {
-      'user_id': _userId,
-      'post_id': _postId,
-      'comment': _commentController.text,
-      'is_reply': false
-    };
-    await Supabase.instance.client.from('comments').insert(obj);
+    if (_commentController.text.isNotEmpty) {
+      var obj = {
+        'user_id': _userId,
+        'post_id': _postId,
+        'comment': _commentController.text,
+        'is_reply': false
+      };
+      await Supabase.instance.client.from('comments').insert(obj);
 
-    _commentController.clear();
+      _commentController.clear();
 
-    setState(() {
-      _getComments();
-    });
+      setState(() {
+        _getComments();
+      });
+    }
   }
 
   // LIKE COMMENT
@@ -138,31 +146,269 @@ class _CommentsPageState extends State<CommentsPage> {
   }
 
   // REPLY ON COMMENT
-  // _reply(comment) async {
-  //   var obj = {
-  //     'user_id': _userId,
-  //     'post_id': _postId,
-  //     'comment': _commentController.text,
-  //     'comment_id': comment['id'],
-  //     'is_reply': true
-  //   };
-  //   await Supabase.instance.client.from('comments').insert(obj);
-  //   _commentController.clear();
-  //   setState(() {
-  //     _getComments();
-  //   });
-  // }
+  void _waitSevenSeconds() {
+    _timer = Timer(const Duration(seconds: 7), () {
+      if (mounted) {
+        // check if the widget is still mounted before calling setState()
+        setState(() {
+          // your code here
+          _shouldWaitForComments = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  // REPLY ON COMMENT
+  _reply(comment) async {
+    if (_commentController.text.isNotEmpty) {
+      var obj = {
+        'user_id': _userId,
+        'post_id': _postId,
+        'comment': _commentController.text,
+        'comment_id': comment['id'],
+        'is_reply': true
+      };
+      await Supabase.instance.client.from('comments').insert(obj);
+      _commentController.clear();
+      setState(() {
+        _reply(comment);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: _getComments(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(
-                backgroundColor: Colors.white,
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              iconTheme: const IconThemeData(
+                color: Colors.black,
               ),
+              surfaceTintColor: Colors.black,
+              shadowColor: Colors.white,
+              elevation: 0,
+              title: const Text(
+                'Comments',
+                style: TextStyle(
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            body: Column(
+              children: [
+                SizedBox(
+                  height: 60,
+                  child: FutureBuilder(
+                    future: _getPost(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Scaffold(
+                          body: Center(
+                            // child: CircularProgressIndicator(
+                            //   backgroundColor: Colors.white,
+                            // ),
+                            child: SizedBox(
+                              height: 100,
+                              width: double.infinity,
+                            ),
+                          ),
+                        );
+                      }
+                      final dynamic post = snapshot.data!;
+                      return SizedBox(
+                        height: 60,
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 16,
+                            ),
+                            post[0]['users']['profile_image_url'] != null &&
+                                    post[0]['users']['profile_image_url']
+                                            .length >
+                                        0
+                                ? ClipOval(
+                                    child: Container(
+                                      height: 40,
+                                      width: 40,
+                                      color: const Color.fromARGB(
+                                          255, 243, 243, 243),
+                                      child: SizedBox(
+                                          child: Image.network(
+                                        post[0]['users']['profile_image_url'],
+                                        height: 40,
+                                        width: 40,
+                                      )),
+                                    ),
+                                  )
+                                : ClipOval(
+                                    child: Container(
+                                      height: 40,
+                                      width: 40,
+                                      color: const Color.fromARGB(
+                                          255, 243, 243, 243),
+                                      child: SizedBox(
+                                        child: Image.network(
+                                          'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
+                                          height: 40,
+                                          width: 40,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                            Container(
+                              width: 16,
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  post[0]['caption'] != null &&
+                                          post[0]['caption'].length > 0
+                                      ? Container(
+                                          margin: const EdgeInsets.fromLTRB(
+                                            0,
+                                            10,
+                                            0,
+                                            0,
+                                          ),
+                                          padding: const EdgeInsets.all(
+                                            0,
+                                          ),
+                                          child: Text(
+                                            post[0]['users']['name'],
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        )
+                                      : const Text(''),
+                                  post[0]['caption'] != null &&
+                                          post[0]['caption'].length > 0
+                                      ? Container(
+                                          margin: const EdgeInsets.fromLTRB(
+                                            0,
+                                            10,
+                                            0,
+                                            0,
+                                          ),
+                                          padding: const EdgeInsets.all(
+                                            0,
+                                          ),
+                                          child: Text(
+                                            post[0]['caption'],
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        )
+                                      : const Text(''),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              width: 16,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: 16.0,
+                ),
+                Expanded(
+                  child: Center(
+                    child: _shouldWaitForComments == true
+                        ? const CircularProgressIndicator(
+                            color: Colors.black,
+                          )
+                        : const Text(
+                            'No Comments',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.w400),
+                          ),
+                  ),
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 20,
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _userProfileUrl != null &&
+                                _userProfileUrl!.isNotEmpty
+                            ? ClipOval(
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  color:
+                                      const Color.fromARGB(255, 243, 243, 243),
+                                  child: SizedBox(
+                                      child: Image.network(
+                                    _userProfileUrl!,
+                                    height: 40,
+                                    width: 40,
+                                  )),
+                                ),
+                              )
+                            : ClipOval(
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  color:
+                                      const Color.fromARGB(255, 243, 243, 243),
+                                  child: SizedBox(
+                                      child: Image.network(
+                                    'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
+                                    height: 40,
+                                    width: 40,
+                                  )),
+                                ),
+                              ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(45.0, 0, 0, 0),
+                        child: TextFormField(
+                          controller: _commentController,
+                          decoration: const InputDecoration(
+                            hintText: 'Add a comment',
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                            MediaQuery.of(context).size.width - 80, 0, 8, 0),
+                        child: TextButton(
+                          onPressed: _comment,
+                          child: const Text('post'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 16.0,
+                ),
+              ],
             ),
           );
         }
@@ -195,8 +441,12 @@ class _CommentsPageState extends State<CommentsPage> {
                     if (!snapshot.hasData) {
                       return const Scaffold(
                         body: Center(
-                          child: CircularProgressIndicator(
-                            backgroundColor: Colors.white,
+                          // child: CircularProgressIndicator(
+                          //   backgroundColor: Colors.white,
+                          // ),
+                          child: SizedBox(
+                            height: 100,
+                            width: double.infinity,
                           ),
                         ),
                       );
@@ -318,7 +568,6 @@ class _CommentsPageState extends State<CommentsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           SizedBox(
-                            height: 60,
                             child: Row(
                               children: [
                                 Container(
@@ -409,6 +658,28 @@ class _CommentsPageState extends State<CommentsPage> {
                                               ),
                                             )
                                           : const Text(''),
+                                      TextButton(
+                                        style: ButtonStyle(
+                                          padding: MaterialStateProperty.all(
+                                            EdgeInsets.zero,
+                                          ),
+                                          alignment: Alignment.centerLeft,
+                                        ),
+                                        onPressed: () {
+                                          _isReplying = true;
+                                          _selectedComment = comment;
+                                          _commentController.text =
+                                              "@${comment['users']['user_tag_id']} ";
+                                        },
+                                        child: const Text(
+                                          'Reply',
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                        ),
+                                      )
                                     ],
                                   ),
                                 ),
@@ -463,7 +734,6 @@ class _CommentsPageState extends State<CommentsPage> {
                                           future:
                                               _getCommentsLikeCount(comment),
                                           builder: (context, snapshot) {
-                                            log(snapshot.toString());
                                             if (snapshot.hasData) {
                                               return Text(
                                                 snapshot.data.length.toString(),
@@ -540,7 +810,13 @@ class _CommentsPageState extends State<CommentsPage> {
                       padding: EdgeInsets.fromLTRB(
                           MediaQuery.of(context).size.width - 80, 0, 8, 0),
                       child: TextButton(
-                        onPressed: _comment,
+                        onPressed: () {
+                          if (_isReplying == false) {
+                            _comment();
+                          } else if (_isReplying == true) {
+                            _reply(_selectedComment);
+                          }
+                        },
                         child: const Text('post'),
                       ),
                     ),
