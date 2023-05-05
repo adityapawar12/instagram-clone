@@ -25,7 +25,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   // SAVED POSTS
   var _savedPosts = [];
-  var _savedPostsCount = 0;
+
+  // FOLLOWERS AND FOLLOWED USERS COUNT
+  late int _followersCount = 0;
+  late int _followedCount = 0;
 
   // GET USER INFO FROM SESSION
   Future<void> _loadPreferences() async {
@@ -67,10 +70,6 @@ class _ProfilePageState extends State<ProfilePage> {
           *
         )
       ''').eq('user_id', prefs.getInt('userId'));
-
-    setState(() {
-      _savedPostsCount = _savedPosts.length;
-    });
   }
 
   // GET SAVED POSTS
@@ -89,12 +88,40 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  // GET FOLLOWERS COUNT
+  Future<dynamic> _getFollowersCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    var followersCount = await Supabase.instance.client
+        .from('followers')
+        .select<List<Map<String, dynamic>>>('*')
+        .eq('follower_user_id', prefs.getInt('userId'));
+
+    setState(() {
+      _followersCount = followersCount.length;
+    });
+  }
+
+  // GET FOLLOWED COUNT
+  Future<dynamic> _getFollowedCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    var followedCount = await Supabase.instance.client
+        .from('followers')
+        .select<List<Map<String, dynamic>>>('*')
+        .eq('followed_user_id', prefs.getInt('userId'));
+
+    setState(() {
+      _followedCount = followedCount.length;
+    });
+  }
+
   // LIFECYCLE METHODS
   @override
   void initState() {
     _loadPreferences();
     _getPosts();
     _getSavedPosts();
+    _getFollowersCount();
+    _getFollowedCount();
     super.initState();
   }
   // LIFECYCLE METHODS
@@ -175,7 +202,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 Container(
                   margin: const EdgeInsets.only(
-                      top: 40.0, left: 25.0, bottom: 15.0, right: 25.0),
+                      top: 40.0, left: 20.0, bottom: 15.0, right: 20.0),
                   child: Column(
                     children: [
                       Text(
@@ -193,18 +220,34 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 Container(
                   margin: const EdgeInsets.only(
-                      top: 40.0, left: 25.0, bottom: 15.0, right: 25.0),
+                      top: 40.0, left: 20.0, bottom: 15.0, right: 20.0),
                   child: Column(
                     children: [
                       Text(
-                        _savedPostsCount > 0
-                            ? _savedPostsCount.toString()
-                            : '0',
+                        _followersCount > 0 ? _followersCount.toString() : '0',
                         style: const TextStyle(
                             fontWeight: FontWeight.w600, fontSize: 40),
                       ),
                       const Text(
-                        'Saved',
+                        'Followers',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 17),
+                      )
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(
+                      top: 40.0, left: 20.0, bottom: 15.0, right: 20.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        _followedCount > 0 ? _followedCount.toString() : '0',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 40),
+                      ),
+                      const Text(
+                        'Followed',
                         style: TextStyle(
                             fontWeight: FontWeight.w500, fontSize: 17),
                       )

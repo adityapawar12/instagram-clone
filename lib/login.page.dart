@@ -238,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: TextButton(
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
                       Colors.black,

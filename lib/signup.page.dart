@@ -814,7 +814,7 @@ one lowercase letter, and one digit.''';
                             ),
                             SizedBox(
                               width: double.infinity,
-                              child: ElevatedButton(
+                              child: TextButton(
                                 style: ButtonStyle(
                                   backgroundColor:
                                       MaterialStateProperty.all<Color>(

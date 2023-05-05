@@ -14,10 +14,11 @@ class _CommentsPageState extends State<CommentsPage> {
   late int? _postId = 0;
   late int? _userId = 0;
   late String? _userProfileUrl = '';
-  late bool? _shouldWaitForComments = true;
+  late bool _shouldWaitForComments = true;
   Timer? _timer;
-  late bool? _isReplying = false;
   late dynamic _selectedComment;
+  late bool _isReplying = false;
+  // late bool _showReplies = false;
 
   // FORM
   final _commentController = TextEditingController();
@@ -172,6 +173,7 @@ class _CommentsPageState extends State<CommentsPage> {
         'post_id': _postId,
         'comment': _commentController.text,
         'comment_id': comment['id'],
+        'reply_user_id': comment['user_id'],
         'is_reply': true
       };
       await Supabase.instance.client.from('comments').insert(obj);
@@ -181,6 +183,26 @@ class _CommentsPageState extends State<CommentsPage> {
       });
     }
   }
+
+  // GET REPLIES
+  // _getReplies(comment) {
+  //   final future = Supabase.instance.client
+  //       .from('comments')
+  //       .select<List<Map<String, dynamic>>>('''
+  //         *,
+  //   users!comments_user_id_fkey (
+  //           id,
+  //           name,
+  //           user_tag_id,
+  //           profile_image_url
+  //         )
+  //       ''')
+  //       .eq('post_id', _postId)
+  //       .eq('is_reply', true)
+  //       .eq('comment_id', comment['id'])
+  //       .order('id');
+  //   return future;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -679,7 +701,26 @@ class _CommentsPageState extends State<CommentsPage> {
                                             fontWeight: FontWeight.w300,
                                           ),
                                         ),
-                                      )
+                                      ),
+                                      TextButton(
+                                        style: ButtonStyle(
+                                          padding: MaterialStateProperty.all(
+                                            EdgeInsets.zero,
+                                          ),
+                                          alignment: Alignment.centerLeft,
+                                        ),
+                                        onPressed: () {
+                                          // _showReplies = true;
+                                        },
+                                        child: const Text(
+                                          '---- See all replies',
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),

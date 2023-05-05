@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_supa/othersProfile.page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -36,8 +37,6 @@ class _SearchPageState extends State<SearchPage> {
         .or('name.ilike.%$searchText%, user_tag_id.ilike.%$searchText%')
         .neq('id', _userId)
         .order('id');
-
-    // log(future.toString());
     return future;
   }
 
@@ -139,6 +138,16 @@ class _SearchPageState extends State<SearchPage> {
                           final user = users[index];
                           if (user.isNotEmpty) {
                             return ListTile(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => OthersProfile(
+                                      userId: user['id'],
+                                    ),
+                                  ),
+                                );
+                              },
                               tileColor: Colors.white,
                               leading: user['profile_image_url'] != null &&
                                       user['profile_image_url'].length > 0
