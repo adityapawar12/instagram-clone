@@ -516,7 +516,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                           height: 150,
                                           width: 150,
                                           color: const Color.fromARGB(
-                                              255, 204, 204, 204),
+                                              255, 240, 240, 240),
                                           child: const SizedBox(
                                             child: Icon(
                                               Icons.person,
@@ -569,7 +569,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                                   const Icon(Icons.add_a_photo),
                                               onPressed: _selectImage,
                                               color: const Color.fromARGB(
-                                                  255, 204, 204, 204),
+                                                  255, 240, 240, 240),
                                             ),
                                           ),
                                         ),
@@ -591,7 +591,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                               icon: const Icon(Icons.cancel),
                                               onPressed: _clearPhoto,
                                               color: const Color.fromARGB(
-                                                  255, 204, 204, 204),
+                                                  255, 240, 240, 240),
                                             ),
                                           ),
                                         ),

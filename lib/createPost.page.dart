@@ -304,7 +304,7 @@ class _CreatePostState extends State<CreatePost> {
                                                 height: 20,
                                                 child: DropdownButton<
                                                     ResolutionPreset>(
-                                                  dropdownColor: Colors.black87,
+                                                  dropdownColor: Colors.black,
                                                   underline: Container(),
                                                   value:
                                                       currentResolutionPreset,
@@ -384,8 +384,7 @@ class _CreatePostState extends State<CreatePost> {
                                             onPressed: _takePhoto,
                                             icon: Icon(
                                               Icons.circle,
-                                              color: const Color.fromARGB(
-                                                  255, 255, 255, 255),
+                                              color: Colors.white,
                                               size: !_showSettings ? 70 : 30,
                                             ),
                                           ),
@@ -448,7 +447,7 @@ class _CreatePostState extends State<CreatePost> {
                                             min: _minAvailableExposureOffset,
                                             max: _maxAvailableExposureOffset,
                                             activeColor: Colors.white,
-                                            inactiveColor: Colors.white30,
+                                            inactiveColor: Colors.white,
                                             onChanged: (value) async {
                                               setState(() {
                                                 _currentExposureOffset = value;
@@ -461,7 +460,7 @@ class _CreatePostState extends State<CreatePost> {
                                       ),
                                       Container(
                                         decoration: BoxDecoration(
-                                          color: Colors.black87,
+                                          color: Colors.black,
                                           borderRadius:
                                               BorderRadius.circular(10.0),
                                         ),
@@ -496,7 +495,7 @@ class _CreatePostState extends State<CreatePost> {
                                             min: _minAvailableZoom,
                                             max: _maxAvailableZoom,
                                             activeColor: Colors.white,
-                                            inactiveColor: Colors.white30,
+                                            inactiveColor: Colors.white,
                                             onChanged: (value) async {
                                               setState(
                                                 () {
@@ -511,7 +510,7 @@ class _CreatePostState extends State<CreatePost> {
                                       ),
                                       Container(
                                         decoration: BoxDecoration(
-                                          color: Colors.black87,
+                                          color: Colors.black,
                                           borderRadius:
                                               BorderRadius.circular(10.0),
                                         ),
@@ -621,7 +620,8 @@ class _CreatePostState extends State<CreatePost> {
                                         Container(
                                           decoration: BoxDecoration(
                                             border: Border.all(
-                                              color: Colors.grey,
+                                              color: const Color.fromARGB(
+                                                  255, 240, 240, 240),
                                               width: 1.0,
                                             ),
                                             borderRadius:
@@ -657,7 +657,7 @@ class _CreatePostState extends State<CreatePost> {
                                                         .size
                                                         .width -
                                                     50.0,
-                                                color: Colors.cyan,
+                                                color: Colors.blue,
                                                 child: IconButton(
                                                   onPressed: _saveImage,
                                                   color: Colors.white,
@@ -673,7 +673,7 @@ class _CreatePostState extends State<CreatePost> {
                                                         .size
                                                         .width -
                                                     50.0,
-                                                color: Colors.cyan,
+                                                color: Colors.blue,
                                                 child: IconButton(
                                                   onPressed: _clearPhoto,
                                                   color: Colors.white,

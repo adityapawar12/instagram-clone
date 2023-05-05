@@ -1,5 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_supa/followed.page.dart';
+import 'package:flutter_supa/followers.page.dart';
 import 'package:flutter_supa/login.page.dart';
 import 'package:video_player/video_player.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,6 +16,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   // USER
+  late int _userId = 0;
   late String _userName = '';
   late String _userTagId = '';
   late String _userBio = '';
@@ -34,6 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
+      _userId = prefs.getInt('userId') ?? 0;
       _userName = prefs.getString('userName') ?? "";
       _userTagId = prefs.getString('userTagId') ?? "";
       _userBio = prefs.getString('bio') ?? "";
@@ -94,7 +98,7 @@ class _ProfilePageState extends State<ProfilePage> {
     var followersCount = await Supabase.instance.client
         .from('followers')
         .select<List<Map<String, dynamic>>>('*')
-        .eq('follower_user_id', prefs.getInt('userId'));
+        .eq('followed_user_id', prefs.getInt('userId'));
 
     setState(() {
       _followersCount = followersCount.length;
@@ -107,7 +111,7 @@ class _ProfilePageState extends State<ProfilePage> {
     var followedCount = await Supabase.instance.client
         .from('followers')
         .select<List<Map<String, dynamic>>>('*')
-        .eq('followed_user_id', prefs.getInt('userId'));
+        .eq('follower_user_id', prefs.getInt('userId'));
 
     setState(() {
       _followedCount = followedCount.length;
@@ -170,7 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: Container(
                             height: 90,
                             width: 90,
-                            color: const Color.fromARGB(255, 243, 243, 243),
+                            color: const Color.fromARGB(255, 240, 240, 240),
                             child: SizedBox(
                               child: Image.network(
                                 _userProfileUrl,
@@ -184,7 +188,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: Container(
                             height: 90,
                             width: 90,
-                            color: const Color.fromARGB(255, 243, 243, 243),
+                            color: const Color.fromARGB(255, 240, 240, 240),
                             child: SizedBox(
                               child: Image.network(
                                 'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
@@ -202,31 +206,58 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 Container(
                   margin: const EdgeInsets.only(
-                      top: 40.0, left: 20.0, bottom: 15.0, right: 20.0),
+                      top: 40.0, left: 10.0, bottom: 15.0, right: 10.0),
                   child: Column(
                     children: [
-                      Text(
-                        _postsCount > 0 ? _postsCount.toString() : '0',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 40),
+                      TextButton(
+                        onPressed: () {},
+                        style: ButtonStyle(
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                            Colors.black,
+                          ),
+                        ),
+                        child: Text(
+                          _postsCount > 0 ? _postsCount.toString() : '0',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 40),
+                        ),
                       ),
                       const Text(
                         'Posts',
                         style: TextStyle(
                             fontWeight: FontWeight.w500, fontSize: 17),
-                      )
+                      ),
                     ],
                   ),
                 ),
                 Container(
                   margin: const EdgeInsets.only(
-                      top: 40.0, left: 20.0, bottom: 15.0, right: 20.0),
+                      top: 40.0, left: 10.0, bottom: 15.0, right: 10.0),
                   child: Column(
                     children: [
-                      Text(
-                        _followersCount > 0 ? _followersCount.toString() : '0',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 40),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FollowersPage(
+                                userId: _userId,
+                              ),
+                            ),
+                          );
+                        },
+                        style: ButtonStyle(
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                            Colors.black,
+                          ),
+                        ),
+                        child: Text(
+                          _followersCount > 0
+                              ? _followersCount.toString()
+                              : '0',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 40),
+                        ),
                       ),
                       const Text(
                         'Followers',
@@ -238,13 +269,30 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 Container(
                   margin: const EdgeInsets.only(
-                      top: 40.0, left: 20.0, bottom: 15.0, right: 20.0),
+                      top: 40.0, left: 10.0, bottom: 15.0, right: 10.0),
                   child: Column(
                     children: [
-                      Text(
-                        _followedCount > 0 ? _followedCount.toString() : '0',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 40),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FollowedPage(
+                                userId: _userId,
+                              ),
+                            ),
+                          );
+                        },
+                        style: ButtonStyle(
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                            Colors.black,
+                          ),
+                        ),
+                        child: Text(
+                          _followedCount > 0 ? _followedCount.toString() : '0',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 40),
+                        ),
                       ),
                       const Text(
                         'Followed',

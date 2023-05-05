@@ -207,7 +207,10 @@ class _FeedPageState extends State<FeedPage> {
                     Container(
                       decoration: const BoxDecoration(
                         border: Border(
-                          top: BorderSide(width: 0.5, color: Colors.black26),
+                          top: BorderSide(
+                            width: 0.5,
+                            color: Color.fromARGB(255, 204, 204, 204),
+                          ),
                         ),
                         color: Colors.white,
                       ),
@@ -221,7 +224,10 @@ class _FeedPageState extends State<FeedPage> {
                     Container(
                       decoration: const BoxDecoration(
                         border: Border(
-                          top: BorderSide(width: 0.5, color: Colors.black26),
+                          top: BorderSide(
+                            width: 0.5,
+                            color: Color.fromARGB(255, 204, 204, 204),
+                          ),
                         ),
                         color: Colors.white,
                       ),

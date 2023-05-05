@@ -238,9 +238,6 @@ class _CommentsPageState extends State<CommentsPage> {
                       if (!snapshot.hasData) {
                         return const Scaffold(
                           body: Center(
-                            // child: CircularProgressIndicator(
-                            //   backgroundColor: Colors.white,
-                            // ),
                             child: SizedBox(
                               height: 100,
                               width: double.infinity,
@@ -265,7 +262,7 @@ class _CommentsPageState extends State<CommentsPage> {
                                       height: 40,
                                       width: 40,
                                       color: const Color.fromARGB(
-                                          255, 243, 243, 243),
+                                          255, 240, 240, 240),
                                       child: SizedBox(
                                           child: Image.network(
                                         post[0]['users']['profile_image_url'],
@@ -279,7 +276,7 @@ class _CommentsPageState extends State<CommentsPage> {
                                       height: 40,
                                       width: 40,
                                       color: const Color.fromARGB(
-                                          255, 243, 243, 243),
+                                          255, 240, 240, 240),
                                       child: SizedBox(
                                         child: Image.network(
                                           'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
@@ -380,7 +377,7 @@ class _CommentsPageState extends State<CommentsPage> {
                                   height: 40,
                                   width: 40,
                                   color:
-                                      const Color.fromARGB(255, 243, 243, 243),
+                                      const Color.fromARGB(255, 240, 240, 240),
                                   child: SizedBox(
                                       child: Image.network(
                                     _userProfileUrl!,
@@ -394,7 +391,7 @@ class _CommentsPageState extends State<CommentsPage> {
                                   height: 40,
                                   width: 40,
                                   color:
-                                      const Color.fromARGB(255, 243, 243, 243),
+                                      const Color.fromARGB(255, 240, 240, 240),
                                   child: SizedBox(
                                       child: Image.network(
                                     'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
@@ -463,9 +460,6 @@ class _CommentsPageState extends State<CommentsPage> {
                     if (!snapshot.hasData) {
                       return const Scaffold(
                         body: Center(
-                          // child: CircularProgressIndicator(
-                          //   backgroundColor: Colors.white,
-                          // ),
                           child: SizedBox(
                             height: 100,
                             width: double.infinity,
@@ -489,7 +483,7 @@ class _CommentsPageState extends State<CommentsPage> {
                                     height: 40,
                                     width: 40,
                                     color: const Color.fromARGB(
-                                        255, 243, 243, 243),
+                                        255, 240, 240, 240),
                                     child: SizedBox(
                                         child: Image.network(
                                       post[0]['users']['profile_image_url'],
@@ -503,7 +497,7 @@ class _CommentsPageState extends State<CommentsPage> {
                                     height: 40,
                                     width: 40,
                                     color: const Color.fromARGB(
-                                        255, 243, 243, 243),
+                                        255, 240, 240, 240),
                                     child: SizedBox(
                                       child: Image.network(
                                         'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
@@ -604,7 +598,7 @@ class _CommentsPageState extends State<CommentsPage> {
                                           height: 40,
                                           width: 40,
                                           color: const Color.fromARGB(
-                                              255, 243, 243, 243),
+                                              255, 240, 240, 240),
                                           child: SizedBox(
                                               child: Image.network(
                                             comment['users']
@@ -619,7 +613,7 @@ class _CommentsPageState extends State<CommentsPage> {
                                           height: 40,
                                           width: 40,
                                           color: const Color.fromARGB(
-                                              255, 243, 243, 243),
+                                              255, 240, 240, 240),
                                           child: SizedBox(
                                               child: Image.network(
                                             'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
@@ -751,7 +745,8 @@ class _CommentsPageState extends State<CommentsPage> {
                                                       )
                                                     : const Icon(
                                                         Icons.favorite_border,
-                                                        color: Colors.grey,
+                                                        color: Color.fromARGB(
+                                                            255, 240, 240, 240),
                                                         size: 20,
                                                       ),
                                                 onPressed: () {
@@ -812,7 +807,7 @@ class _CommentsPageState extends State<CommentsPage> {
                               child: Container(
                                 height: 40,
                                 width: 40,
-                                color: const Color.fromARGB(255, 243, 243, 243),
+                                color: const Color.fromARGB(255, 240, 240, 240),
                                 child: SizedBox(
                                     child: Image.network(
                                   _userProfileUrl!,
@@ -825,7 +820,7 @@ class _CommentsPageState extends State<CommentsPage> {
                               child: Container(
                                 height: 40,
                                 width: 40,
-                                color: const Color.fromARGB(255, 243, 243, 243),
+                                color: const Color.fromARGB(255, 240, 240, 240),
                                 child: SizedBox(
                                     child: Image.network(
                                   'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',

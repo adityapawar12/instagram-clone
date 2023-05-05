@@ -70,7 +70,7 @@ class _SearchPageState extends State<SearchPage> {
                   Icons.search,
                   color: _searchController.text.isNotEmpty
                       ? Colors.black
-                      : Colors.grey,
+                      : const Color.fromARGB(255, 204, 204, 204),
                 ),
               ),
               Expanded(
@@ -86,11 +86,11 @@ class _SearchPageState extends State<SearchPage> {
                     });
                   },
                   controller: _searchController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Search',
                     border: InputBorder.none,
                     hintStyle: TextStyle(
-                      color: Colors.black.withOpacity(0.7),
+                      color: Colors.black,
                     ),
                   ),
                 ),
