@@ -322,7 +322,6 @@ class _SignUpPageState extends State<SignUpPage> {
             actions: [
               TextButton(
                 onPressed: () async {
-                  Navigator.pop(context);
                   final name = _nameController.text;
                   final userTagId = _userTagIdController.text;
                   final bio = _bioController.text;
