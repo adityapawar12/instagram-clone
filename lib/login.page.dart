@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_supa/signup.page.dart';
-import 'package:flutter_supa/Container.page.dart';
+import 'package:instagram_clone/signup.page.dart';
+import 'package:instagram_clone/Container.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

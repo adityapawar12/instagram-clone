@@ -1,10 +1,10 @@
 import 'dart:developer';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_supa/feed.page.dart';
-import 'package:flutter_supa/login.page.dart';
+import 'package:instagram_clone/feed.page.dart';
+import 'package:instagram_clone/login.page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_supa/profile.page.dart';
+import 'package:instagram_clone/profile.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 List<CameraDescription> cameras = [];
@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'My App',
+      title: 'Instagram Clone',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue)

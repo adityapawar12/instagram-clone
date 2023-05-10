@@ -3,9 +3,9 @@ import '../main.dart';
 import 'dart:developer';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_supa/login.page.dart';
+import 'package:instagram_clone/login.page.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_supa/container.page.dart';
+import 'package:instagram_clone/container.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

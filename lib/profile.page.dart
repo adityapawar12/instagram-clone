@@ -1,8 +1,8 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_supa/followed.page.dart';
-import 'package:flutter_supa/followers.page.dart';
-import 'package:flutter_supa/login.page.dart';
+import 'package:instagram_clone/followed.page.dart';
+import 'package:instagram_clone/followers.page.dart';
+import 'package:instagram_clone/login.page.dart';
 import 'package:video_player/video_player.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_supa/feed.page.dart';
-import 'package:flutter_supa/search.page.dart';
-import 'package:flutter_supa/profile.page.dart';
-import 'package:flutter_supa/createPost.page.dart';
+import 'package:instagram_clone/feed.page.dart';
+import 'package:instagram_clone/search.page.dart';
+import 'package:instagram_clone/profile.page.dart';
+import 'package:instagram_clone/createPost.page.dart';
 
 class ContainerPage extends StatefulWidget {
   const ContainerPage({super.key});

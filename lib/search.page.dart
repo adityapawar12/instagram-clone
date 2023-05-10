@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_supa/othersProfile.page.dart';
+import 'package:instagram_clone/othersProfile.page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

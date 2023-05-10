@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.flutter_supa">
+    package="com.example.instagram_clone">
     <uses-permission android:name="android.permission.CAMERA" />
     <application
-        android:label="flutter_supa"
+        android:label="instagram_clone"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
