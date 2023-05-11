@@ -1,5 +1,6 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'utils/clickable_text_utils.dart';
 import 'package:video_player/video_player.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -363,12 +364,9 @@ class _FeedPageState extends State<FeedPage> {
                                   const SizedBox(
                                     width: 5.0,
                                   ),
-                                  Text(
-                                    "${post['caption']}",
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                    ),
+                                  RichText(
+                                    text: buildClickableTextSpan(
+                                        post['caption'], _userId, context),
                                   ),
                                 ],
                               ),

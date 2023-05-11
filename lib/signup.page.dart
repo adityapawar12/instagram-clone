@@ -290,7 +290,11 @@ class _SignUpPageState extends State<SignUpPage> {
           // ignore: use_build_context_synchronously
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const ContainerPage()),
+            MaterialPageRoute(
+              builder: (_) => const ContainerPage(
+                selectedPageIndex: 0,
+              ),
+            ),
           );
         } else {
           // ignore: use_build_context_synchronously
@@ -372,7 +376,11 @@ class _SignUpPageState extends State<SignUpPage> {
                     // ignore: use_build_context_synchronously
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const ContainerPage()),
+                      MaterialPageRoute(
+                        builder: (_) => const ContainerPage(
+                          selectedPageIndex: 0,
+                        ),
+                      ),
                     );
                   } else {
                     // ignore: use_build_context_synchronously
@@ -438,13 +446,21 @@ class _SignUpPageState extends State<SignUpPage> {
         // ignore: use_build_context_synchronously
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ContainerPage()),
+          MaterialPageRoute(
+            builder: (_) => const ContainerPage(
+              selectedPageIndex: 0,
+            ),
+          ),
         );
       }
       // ignore: use_build_context_synchronously
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const ContainerPage()),
+        MaterialPageRoute(
+          builder: (_) => const ContainerPage(
+            selectedPageIndex: 0,
+          ),
+        ),
       );
     }
   }

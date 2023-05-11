@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'utils/clickable_text_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -12,7 +13,7 @@ class CommentsPage extends StatefulWidget {
 
 class _CommentsPageState extends State<CommentsPage> {
   late int? _postId = 0;
-  late int? _userId = 0;
+  static int _userId = 0;
   late String? _userProfileUrl = '';
   late bool _shouldWaitForComments = true;
   Timer? _timer;
@@ -34,7 +35,7 @@ class _CommentsPageState extends State<CommentsPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _postId = prefs.getInt('commentPostId');
-      _userId = prefs.getInt('userId');
+      _userId = prefs.getInt('userId') ?? 0;
       _userProfileUrl = prefs.getString('profileImageUrl');
     });
   }
@@ -548,12 +549,11 @@ class _CommentsPageState extends State<CommentsPage> {
                                         padding: const EdgeInsets.all(
                                           0,
                                         ),
-                                        child: Text(
-                                          post[0]['caption'],
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w400,
-                                          ),
+                                        child: RichText(
+                                          text: buildClickableTextSpan(
+                                              post[0]['caption'],
+                                              _userId,
+                                              context),
                                         ),
                                       )
                                     : const Text(''),
@@ -665,12 +665,11 @@ class _CommentsPageState extends State<CommentsPage> {
                                               padding: const EdgeInsets.all(
                                                 0,
                                               ),
-                                              child: Text(
-                                                comment['comment'],
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
+                                              child: RichText(
+                                                text: buildClickableTextSpan(
+                                                    comment['comment'],
+                                                    _userId,
+                                                    context),
                                               ),
                                             )
                                           : const Text(''),

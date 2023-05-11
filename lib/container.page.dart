@@ -5,7 +5,9 @@ import 'package:instagram_clone/profile.page.dart';
 import 'package:instagram_clone/createPost.page.dart';
 
 class ContainerPage extends StatefulWidget {
-  const ContainerPage({super.key});
+  final int selectedPageIndex;
+
+  const ContainerPage({super.key, required this.selectedPageIndex});
 
   // LIST OF WIDGETS
   static const List<Widget> _widgetOptions = <Widget>[
@@ -28,6 +30,12 @@ class _ContainerPageState extends State<ContainerPage> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    _selectedIndex = widget.selectedPageIndex;
+    super.initState();
   }
 
   @override

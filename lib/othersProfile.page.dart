@@ -1,5 +1,6 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'utils/clickable_text_utils.dart';
 import 'package:instagram_clone/followed.page.dart';
 import 'package:instagram_clone/followers.page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -327,8 +328,9 @@ class _OthersProfileState extends State<OthersProfile> {
                   children: [
                     Container(
                       padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 0),
-                      child: Text(
-                        user['bio'],
+                      child: RichText(
+                        text: buildClickableTextSpan(
+                            user['bio'], _userId, context),
                       ),
                     )
                   ],
