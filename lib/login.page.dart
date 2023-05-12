@@ -222,6 +222,22 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(
                         45.0), // Adjust the border radius as needed
                   ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(
+                        45.0), // Same border radius for both states
+                    borderSide: const BorderSide(
+                      color: Colors.red,
+                      width: 1.5,
+                    ),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(
+                        45.0), // Same border radius for both states
+                    borderSide: const BorderSide(
+                      color: Colors.red,
+                      width: 1.5,
+                    ),
+                  ),
                 ),
                 cursorColor: Colors.black, // Set the cursor color to black
               ),
@@ -238,7 +254,7 @@ class _LoginPageState extends State<LoginPage> {
                   return null;
                 },
                 decoration: InputDecoration(
-                  labelText: 'Password',
+                  hintText: 'Password',
                   filled: true,
                   fillColor: Colors.grey[200], // Use the desired grey color
                   enabledBorder: OutlineInputBorder(
@@ -250,6 +266,22 @@ class _LoginPageState extends State<LoginPage> {
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.circular(
                         45.0), // Adjust the border radius as needed
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(
+                        45.0), // Same border radius for both states
+                    borderSide: const BorderSide(
+                      color: Colors.red,
+                      width: 1.5,
+                    ),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(
+                        45.0), // Same border radius for both states
+                    borderSide: const BorderSide(
+                      color: Colors.red,
+                      width: 1.5,
+                    ),
                   ),
                 ),
                 cursorColor: Colors.black, // Set the cursor color to black

@@ -660,7 +660,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 return null;
                               },
                               decoration: InputDecoration(
-                                labelText: 'Name',
+                                hintText: 'Name',
                                 filled: true,
                                 fillColor: Colors
                                     .grey[200], // Use the desired grey color
@@ -673,6 +673,22 @@ class _SignUpPageState extends State<SignUpPage> {
                                   borderSide: BorderSide.none,
                                   borderRadius: BorderRadius.circular(
                                       45.0), // Adjust the border radius as needed
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Same border radius for both states
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Same border radius for both states
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
                               cursorColor:
@@ -690,7 +706,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 return null;
                               },
                               decoration: InputDecoration(
-                                labelText: 'Tag Name',
+                                hintText: 'Tag Name',
                                 filled: true,
                                 fillColor: Colors
                                     .grey[200], // Use the desired grey color
@@ -703,6 +719,22 @@ class _SignUpPageState extends State<SignUpPage> {
                                   borderSide: BorderSide.none,
                                   borderRadius: BorderRadius.circular(
                                       45.0), // Adjust the border radius as needed
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Same border radius for both states
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Same border radius for both states
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
                               cursorColor:
@@ -714,7 +746,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             TextFormField(
                               controller: _bioController,
                               decoration: InputDecoration(
-                                labelText: 'Bio',
+                                hintText: 'Bio',
                                 filled: true,
                                 fillColor: Colors
                                     .grey[200], // Use the desired grey color
@@ -727,6 +759,22 @@ class _SignUpPageState extends State<SignUpPage> {
                                   borderSide: BorderSide.none,
                                   borderRadius: BorderRadius.circular(
                                       45.0), // Adjust the border radius as needed
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Same border radius for both states
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Same border radius for both states
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
                               cursorColor:
@@ -748,7 +796,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 return null;
                               },
                               decoration: InputDecoration(
-                                labelText: 'Phone Number',
+                                hintText: 'Phone Number',
                                 filled: true,
                                 fillColor: Colors
                                     .grey[200], // Use the desired grey color
@@ -761,6 +809,22 @@ class _SignUpPageState extends State<SignUpPage> {
                                   borderSide: BorderSide.none,
                                   borderRadius: BorderRadius.circular(
                                       45.0), // Adjust the border radius as needed
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Same border radius for both states
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Same border radius for both states
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
                               cursorColor:
@@ -783,7 +847,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 return null;
                               },
                               decoration: InputDecoration(
-                                labelText: 'Email Address',
+                                hintText: 'Email Address',
                                 filled: true,
                                 fillColor: Colors
                                     .grey[200], // Use the desired grey color
@@ -796,6 +860,22 @@ class _SignUpPageState extends State<SignUpPage> {
                                   borderSide: BorderSide.none,
                                   borderRadius: BorderRadius.circular(
                                       45.0), // Adjust the border radius as needed
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Same border radius for both states
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Same border radius for both states
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
                               cursorColor:
@@ -845,7 +925,7 @@ one lowercase letter, and one digit.''';
                                 }
                               },
                               decoration: InputDecoration(
-                                labelText: 'Password',
+                                hintText: 'Password',
                                 filled: true,
                                 fillColor: Colors
                                     .grey[200], // Use the desired grey color
@@ -858,6 +938,22 @@ one lowercase letter, and one digit.''';
                                   borderSide: BorderSide.none,
                                   borderRadius: BorderRadius.circular(
                                       45.0), // Adjust the border radius as needed
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Same border radius for both states
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Same border radius for both states
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
                               cursorColor:
