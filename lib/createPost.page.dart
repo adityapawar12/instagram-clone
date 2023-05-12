@@ -177,7 +177,58 @@ class _CreatePostState extends State<CreatePost> {
         'post_url': res,
         'caption': _caption,
       };
-      await Supabase.instance.client.from('posts').insert(obj);
+      var post =
+          await Supabase.instance.client.from('posts').insert(obj).select();
+
+      log(post.toString());
+
+      if (post![0]!['caption']!.length > 0) {
+        log('CAPTIONNNNNNNNNNNNNNNNNNNNNNNNNNNN');
+        String captionText = post![0]!['caption']!;
+        List<String> captionWords = captionText.split(" ");
+
+        for (String captionWord in captionWords) {
+          if (captionWord.startsWith("#")) {
+            log("Found word starting with #: $captionWord");
+
+            var hashtagExists = await Supabase.instance.client
+                .from('hashtags')
+                .select("id")
+                .eq('hashtag', captionWord);
+
+            if (hashtagExists != null && hashtagExists.length > 0) {
+              final hashtagPostObj = {
+                'hashtag_id': hashtagExists![0]!['id'],
+                'post_id': post![0]!['id'],
+              };
+              await Supabase.instance.client
+                  .from('hashtag_posts')
+                  .insert(hashtagPostObj)
+                  .select();
+            } else {
+              final hashtagObj = {
+                'post_id': post![0]!['id'],
+                'user_id': post![0]!['user_id'],
+                'hashtag': captionWord,
+              };
+              var hashtag = await Supabase.instance.client
+                  .from('hashtags')
+                  .insert(hashtagObj)
+                  .select();
+
+              final hashtagPostObj = {
+                'hashtag_id': hashtag![0]!['id'],
+                'post_id': post![0]!['id'],
+              };
+              await Supabase.instance.client
+                  .from('hashtag_posts')
+                  .insert(hashtagPostObj)
+                  .select();
+            }
+          }
+        }
+      }
+
       _clearPhoto();
     }
   }

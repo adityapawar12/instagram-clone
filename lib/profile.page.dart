@@ -1,3 +1,4 @@
+import 'utils/clickable_text_utils.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/followed.page.dart';
@@ -308,7 +309,9 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 Container(
                   padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 0),
-                  child: Text(_userBio),
+                  child: RichText(
+                    text: buildClickableTextSpan(_userBio, _userId, context),
+                  ),
                 )
               ],
             ),
