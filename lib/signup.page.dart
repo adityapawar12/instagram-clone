@@ -651,7 +651,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                     .toLowerCase()
                                     .replaceAll(' ', '')
                                     .replaceAll('@', '');
-
                                 _userTagIdController.text = userTagName;
                               },
                               validator: (value) {
@@ -660,16 +659,24 @@ class _SignUpPageState extends State<SignUpPage> {
                                 }
                                 return null;
                               },
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Name',
-                                hintText: 'Name',
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.red,
-                                    width: 5.0,
-                                  ),
+                                filled: true,
+                                fillColor: Colors
+                                    .grey[200], // Use the desired grey color
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Adjust the border radius as needed
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Adjust the border radius as needed
                                 ),
                               ),
+                              cursorColor:
+                                  Colors.black, // Set the cursor color to black
                             ),
                             const SizedBox(
                               height: 16.0,
@@ -682,32 +689,48 @@ class _SignUpPageState extends State<SignUpPage> {
                                 }
                                 return null;
                               },
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Tag Name',
-                                hintText: 'Tag Name',
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.red,
-                                    width: 5.0,
-                                  ),
+                                filled: true,
+                                fillColor: Colors
+                                    .grey[200], // Use the desired grey color
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Adjust the border radius as needed
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Adjust the border radius as needed
                                 ),
                               ),
+                              cursorColor:
+                                  Colors.black, // Set the cursor color to black
                             ),
                             const SizedBox(
                               height: 16.0,
                             ),
                             TextFormField(
                               controller: _bioController,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Bio',
-                                hintText: 'Bio',
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.red,
-                                    width: 5.0,
-                                  ),
+                                filled: true,
+                                fillColor: Colors
+                                    .grey[200], // Use the desired grey color
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Adjust the border radius as needed
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Adjust the border radius as needed
                                 ),
                               ),
+                              cursorColor:
+                                  Colors.black, // Set the cursor color to black
                             ),
                             const SizedBox(
                               height: 16.0,
@@ -724,16 +747,24 @@ class _SignUpPageState extends State<SignUpPage> {
                                 }
                                 return null;
                               },
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Phone Number',
-                                hintText: 'Phone Number',
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.red,
-                                    width: 5.0,
-                                  ),
+                                filled: true,
+                                fillColor: Colors
+                                    .grey[200], // Use the desired grey color
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Adjust the border radius as needed
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Adjust the border radius as needed
                                 ),
                               ),
+                              cursorColor:
+                                  Colors.black, // Set the cursor color to black
                             ),
                             const SizedBox(
                               height: 16.0,
@@ -751,16 +782,24 @@ class _SignUpPageState extends State<SignUpPage> {
                                 }
                                 return null;
                               },
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Email Address',
-                                hintText: 'Email Address',
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.red,
-                                    width: 5.0,
-                                  ),
+                                filled: true,
+                                fillColor: Colors
+                                    .grey[200], // Use the desired grey color
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Adjust the border radius as needed
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Adjust the border radius as needed
                                 ),
                               ),
+                              cursorColor:
+                                  Colors.black, // Set the cursor color to black
                             ),
                             const SizedBox(
                               height: 16.0,
@@ -788,14 +827,10 @@ class _SignUpPageState extends State<SignUpPage> {
                                   strengthScore++;
                                 }
 
-                                // if (!passwordRegex.hasMatch(value)) {
-                                //   return 'Password must be at least 8 characters long, and contain at least one uppercase letter, one lowercase letter, and one digit.';
-                                // }
-
                                 switch (strengthScore) {
                                   case 1:
                                     return '''Weak Password!
-Password must be at least 8 characters long, and contain at least one uppercase letter, 
+Password must be at least 8 characters long, and contain at least one uppercase letter,
 one lowercase letter, and one digit.''';
                                   case 2:
                                     return '''Moderate Password!
@@ -808,21 +843,25 @@ one lowercase letter, and one digit.''';
 Password must be at least 8 characters long, and contain at least one uppercase letter,
 one lowercase letter, and one digit.''';
                                 }
-
-                                // print('Password Strength: $strength');
-
-                                // return null;
                               },
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Password',
-                                hintText: 'Password',
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.red,
-                                    width: 5.0,
-                                  ),
+                                filled: true,
+                                fillColor: Colors
+                                    .grey[200], // Use the desired grey color
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Adjust the border radius as needed
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(
+                                      45.0), // Adjust the border radius as needed
                                 ),
                               ),
+                              cursorColor:
+                                  Colors.black, // Set the cursor color to black
                             ),
                             const SizedBox(
                               height: 16.0,
@@ -831,6 +870,12 @@ one lowercase letter, and one digit.''';
                               width: double.infinity,
                               child: TextButton(
                                 style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(45.0),
+                                    ),
+                                  ),
                                   backgroundColor:
                                       MaterialStateProperty.all<Color>(
                                     Colors.black,
@@ -846,8 +891,9 @@ one lowercase letter, and one digit.''';
                               ),
                             ),
                             const SizedBox(
-                              height: 5.0,
+                              height: 15.0,
                             ),
+                            const Text("Already Have an account?"),
                             SizedBox(
                               width: double.infinity,
                               child: TextButton(
@@ -858,8 +904,13 @@ one lowercase letter, and one digit.''';
                                         builder: (_) => const LoginPage()),
                                   );
                                 },
+                                style: ButtonStyle(
+                                  overlayColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.transparent),
+                                ),
                                 child: const Text(
-                                  'Login',
+                                  'Sign In',
                                   style: TextStyle(color: Colors.black),
                                 ),
                               ),

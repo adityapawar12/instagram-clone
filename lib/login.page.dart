@@ -191,7 +191,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'LOGIN',
+                'Sign In',
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
@@ -208,16 +208,22 @@ class _LoginPageState extends State<LoginPage> {
                   }
                   return null;
                 },
-                decoration: const InputDecoration(
-                  labelText: 'Email/Phone',
+                decoration: InputDecoration(
                   hintText: 'Email/Phone',
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.red,
-                      width: 5.0,
-                    ),
+                  filled: true,
+                  fillColor: Colors.grey[200], // Use the desired grey color
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(
+                        45.0), // Adjust the border radius as needed
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(
+                        45.0), // Adjust the border radius as needed
                   ),
                 ),
+                cursorColor: Colors.black, // Set the cursor color to black
               ),
               const SizedBox(
                 height: 16.0,
@@ -231,16 +237,22 @@ class _LoginPageState extends State<LoginPage> {
                   }
                   return null;
                 },
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Password',
-                  hintText: 'Password',
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.red,
-                      width: 5.0,
-                    ),
+                  filled: true,
+                  fillColor: Colors.grey[200], // Use the desired grey color
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(
+                        45.0), // Adjust the border radius as needed
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(
+                        45.0), // Adjust the border radius as needed
                   ),
                 ),
+                cursorColor: Colors.black, // Set the cursor color to black
               ),
               const SizedBox(
                 height: 16.0,
@@ -249,6 +261,11 @@ class _LoginPageState extends State<LoginPage> {
                 width: double.infinity,
                 child: TextButton(
                   style: ButtonStyle(
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(45.0),
+                      ),
+                    ),
                     backgroundColor: MaterialStateProperty.all<Color>(
                       Colors.black,
                     ),
@@ -257,14 +274,15 @@ class _LoginPageState extends State<LoginPage> {
                     _login(context);
                   },
                   child: const Text(
-                    'LOGIN',
+                    'Sign In',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
               ),
               const SizedBox(
-                height: 5.0,
+                height: 15.0,
               ),
+              const Text("Don't Have an account?"),
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
@@ -274,6 +292,10 @@ class _LoginPageState extends State<LoginPage> {
                       MaterialPageRoute(builder: (_) => const SignUpPage()),
                     );
                   },
+                  style: ButtonStyle(
+                    overlayColor:
+                        MaterialStateProperty.all<Color>(Colors.transparent),
+                  ),
                   child: const Text(
                     'Sign Up',
                     style: TextStyle(color: Colors.black),
