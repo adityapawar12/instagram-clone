@@ -1,8 +1,9 @@
 import 'dart:developer';
-
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_player/video_player.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HashtagPosts extends StatefulWidget {
   final String hashtag;
@@ -28,7 +29,7 @@ class _HashtagPostsState extends State<HashtagPosts> {
   }
 
   // GET HASHTAG INFO
-  Future<void> getHashtag() async {
+  Future<void> _getHashtag() async {
     var hashtag = await Supabase.instance.client
         .from('hashtags')
         .select<List<Map<String, dynamic>>>("*")
@@ -42,7 +43,7 @@ class _HashtagPostsState extends State<HashtagPosts> {
   }
 
   // GET HASHTAG POSTS COUNT
-  getHashtagPostsCount(int hashtagId) {
+  _getHashtagPostsCount(int hashtagId) {
     var hashtagPostsCount = Supabase.instance.client
         .from('hashtag_posts')
         .select('id')
@@ -52,13 +53,13 @@ class _HashtagPostsState extends State<HashtagPosts> {
   }
 
   // GET HASHTAG POSTS
-  Future<void> getHashtagPosts(int hashtagId) async {
-    var hashtagPosts = await Supabase.instance.client
+  _getHashtagPosts(int hashtagId) {
+    var hashtagPosts = Supabase.instance.client
         .from('hashtag_posts')
-        .select<List<Map<String, dynamic>>>("*")
+        .select('*')
         .eq('hashtag_id', hashtagId);
 
-    log(hashtagPosts.toString());
+    return hashtagPosts;
   }
 
   // CHECK IF USER IS FOLLOWED OR NOT
@@ -103,7 +104,7 @@ class _HashtagPostsState extends State<HashtagPosts> {
   @override
   void initState() {
     _loadPreferences();
-    getHashtag();
+    _getHashtag();
     super.initState();
   }
 
@@ -215,7 +216,7 @@ class _HashtagPostsState extends State<HashtagPosts> {
                           width: double.infinity,
                           alignment: Alignment.center,
                           child: FutureBuilder(
-                            future: getHashtagPostsCount(
+                            future: _getHashtagPostsCount(
                                 _hashtag != null && _hashtag.length > 0
                                     ? _hashtag[0]['id']
                                     : 0),
@@ -340,8 +341,168 @@ class _HashtagPostsState extends State<HashtagPosts> {
             Expanded(
               flex: 6,
               child: Row(
-                children: const <Widget>[
-                  Text('The hashtag'),
+                children: <Widget>[
+                  FutureBuilder(
+                    future: _getHashtagPosts(
+                        _hashtag != null && _hashtag.length > 0
+                            ? _hashtag[0]['id']
+                            : 0),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(
+                          child: CircularProgressIndicator(color: Colors.white),
+                        );
+                      }
+
+                      dynamic hashtagposts = snapshot.data!;
+
+                      return Expanded(
+                        child: GridView.count(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 0,
+                          mainAxisSpacing: 0,
+                          physics: const BouncingScrollPhysics(),
+                          children: List.generate(
+                            hashtagposts.length,
+                            (index) {
+                              return FutureBuilder(
+                                future: _getPost(hashtagposts != null &&
+                                        hashtagposts.length > 0
+                                    ? hashtagposts[index]['post_id']
+                                    : 0),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(
+                                          color: Colors.white),
+                                    );
+                                  }
+
+                                  // log(snapshot.data!.toString());
+
+                                  final dynamic post = snapshot.data!;
+
+                                  // return Text(post[0].toString());
+
+                                  return Column(
+                                    children: [
+                                      if (post[0]['post_type'] == 'image')
+                                        SizedBox(
+                                          width: 129,
+                                          height: 129,
+                                          child: FittedBox(
+                                            fit: BoxFit.contain,
+                                            child: Image.network(
+                                              post[0]['post_url'],
+                                              height: 129,
+                                            ),
+                                          ),
+                                        )
+                                      else if (post[0]['post_type'] == 'video')
+                                        SizedBox(
+                                          width: 129,
+                                          height: 129,
+                                          child: FittedBox(
+                                            fit: BoxFit.fitWidth,
+                                            child: Chewie(
+                                              controller: ChewieController(
+                                                videoPlayerController:
+                                                    VideoPlayerController
+                                                        .network(
+                                                  post[0]['post_url'],
+                                                ),
+                                                autoPlay: true,
+                                                aspectRatio: 16 / 9,
+                                                looping: false,
+                                                allowFullScreen: true,
+                                                allowMuting: true,
+                                                showControls: false,
+                                                errorBuilder:
+                                                    (context, errorMessage) {
+                                                  return Center(
+                                                    child: Text(
+                                                      errorMessage,
+                                                      style: const TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  // Expanded(
+                  //   child: GridView.count(
+                  //     crossAxisCount: 3,
+                  //     crossAxisSpacing: 0,
+                  //     mainAxisSpacing: 0,
+                  //     physics: const BouncingScrollPhysics(),
+                  //     children: List.generate(
+                  //       _posts.length,
+                  //       (index) {
+                  //         final post = _posts[index];
+
+                  //         return Column(
+                  //           children: [
+                  //             if (post['post_type'] == 'image')
+                  //               SizedBox(
+                  //                 width: 129,
+                  //                 height: 129,
+                  //                 child: FittedBox(
+                  //                   fit: BoxFit.contain,
+                  //                   child: Image.network(
+                  //                     post['post_url'],
+                  //                     height: 129,
+                  //                   ),
+                  //                 ),
+                  //               )
+                  //             else if (post['post_type'] == 'video')
+                  //               SizedBox(
+                  //                 width: 129,
+                  //                 height: 129,
+                  //                 child: FittedBox(
+                  //                   fit: BoxFit.fitWidth,
+                  //                   child: Chewie(
+                  //                     controller: ChewieController(
+                  //                       videoPlayerController:
+                  //                           VideoPlayerController.network(
+                  //                         post['post_url'],
+                  //                       ),
+                  //                       autoPlay: true,
+                  //                       aspectRatio: 16 / 9,
+                  //                       looping: false,
+                  //                       allowFullScreen: true,
+                  //                       allowMuting: true,
+                  //                       showControls: false,
+                  //                       errorBuilder: (context, errorMessage) {
+                  //                         return Center(
+                  //                           child: Text(
+                  //                             errorMessage,
+                  //                             style: const TextStyle(
+                  //                                 color: Colors.white),
+                  //                           ),
+                  //                         );
+                  //                       },
+                  //                     ),
+                  //                   ),
+                  //                 ),
+                  //               ),
+                  //           ],
+                  //         );
+                  //       },
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
