@@ -3,7 +3,7 @@ import '../main.dart';
 import 'dart:developer';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:instagram_clone/login.page.dart';
+import 'package:instagram_clone/signin.page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:instagram_clone/container.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -20,7 +20,7 @@ class _SignUpPageState extends State<SignUpPage> {
   // FORM
   final _formKey = GlobalKey<FormState>();
 
-  // FORM CONTROLS
+  // FORM FIELDS
   final _nameController = TextEditingController();
   final _userTagIdController = TextEditingController();
   final _bioController = TextEditingController();
@@ -44,6 +44,12 @@ class _SignUpPageState extends State<SignUpPage> {
 
   // OTHER
   bool _isUploading = false;
+
+  // SIGN UP STATE
+  bool _isSignningUp = false;
+
+  // SIGN IN STATE
+  bool _isUserSignedIn = false;
 
   // ON CAMERA SELECTED
   void onNewCameraSelected(CameraDescription cameraDescription) async {
@@ -153,6 +159,9 @@ class _SignUpPageState extends State<SignUpPage> {
   void _signUpUser(BuildContext context) async {
     bool isFileReady = await _checkFile(_image);
 
+    setState(() {
+      _isSignningUp = true;
+    });
     if (_formKey.currentState!.validate()) {
       final userTagNameExists = await Supabase.instance.client
           .from('users')
@@ -176,6 +185,9 @@ class _SignUpPageState extends State<SignUpPage> {
             ],
           ),
         );
+        setState(() {
+          _isSignningUp = false;
+        });
         return;
       }
 
@@ -201,6 +213,9 @@ class _SignUpPageState extends State<SignUpPage> {
             ],
           ),
         );
+        setState(() {
+          _isSignningUp = false;
+        });
         return;
       }
 
@@ -226,6 +241,9 @@ class _SignUpPageState extends State<SignUpPage> {
             ],
           ),
         );
+        setState(() {
+          _isSignningUp = false;
+        });
         return;
       }
 
@@ -287,6 +305,9 @@ class _SignUpPageState extends State<SignUpPage> {
             await prefs.setString(
                 'profileImageUrl', newUser[0]['profile_image_url']);
           }
+          setState(() {
+            _isSignningUp = false;
+          });
           // ignore: use_build_context_synchronously
           Navigator.push(
             context,
@@ -297,6 +318,9 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
           );
         } else {
+          setState(() {
+            _isSignningUp = false;
+          });
           // ignore: use_build_context_synchronously
           showDialog(
             context: context,
@@ -373,6 +397,9 @@ class _SignUpPageState extends State<SignUpPage> {
                       await prefs.setString(
                           'profileImageUrl', newUser[0]['profile_image_url']);
                     }
+                    setState(() {
+                      _isSignningUp = false;
+                    });
                     // ignore: use_build_context_synchronously
                     Navigator.push(
                       context,
@@ -383,6 +410,9 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     );
                   } else {
+                    setState(() {
+                      _isSignningUp = false;
+                    });
                     // ignore: use_build_context_synchronously
                     showDialog(
                       context: context,
@@ -406,7 +436,12 @@ class _SignUpPageState extends State<SignUpPage> {
                 child: const Text('Continue'),
               ),
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  setState(() {
+                    _isSignningUp = false;
+                  });
+                  Navigator.pop(context);
+                },
                 child: const Text('Select Profile Image'),
               ),
             ],
@@ -414,10 +449,16 @@ class _SignUpPageState extends State<SignUpPage> {
         );
       }
     }
+    setState(() {
+      _isSignningUp = false;
+    });
   }
 
-  // CHECK USER LOGIN
-  void _checkLogin(BuildContext context) async {
+  // CHECK USER SIGNED IN OR NOT
+  void _checkUserSignedIn(BuildContext context) async {
+    setState(() {
+      _isUserSignedIn = true;
+    });
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     final int? userId = prefs.getInt('userId');
@@ -462,6 +503,10 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
         ),
       );
+    } else {
+      setState(() {
+        _isUserSignedIn = false;
+      });
     }
   }
 
@@ -471,7 +516,7 @@ class _SignUpPageState extends State<SignUpPage> {
     onNewCameraSelected(cameras[1]);
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkLogin(context);
+      _checkUserSignedIn(context);
     });
   }
 
@@ -502,527 +547,542 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _isCameraInitialized
-          ? !_isUploading
-              ? SingleChildScrollView(
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'SIGN UP',
-                              style: TextStyle(
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 16.0,
-                            ),
-                            Stack(
+      body: _isUserSignedIn == false
+          ? _isCameraInitialized
+              ? !_isUploading
+                  ? SingleChildScrollView(
+                      child: SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                !_imageSelected && !_imageCaptured
-                                    ? ClipOval(
-                                        child: Container(
-                                          height: 150,
-                                          width: 150,
-                                          color: const Color.fromARGB(
-                                              255, 240, 240, 240),
-                                          child: const SizedBox(
-                                            child: Icon(
-                                              Icons.person,
-                                              size: 140,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    : const SizedBox(width: 0, height: 0),
-                                _imageCaptureButtonClicked
-                                    ? ClipOval(
-                                        child: SizedBox(
-                                          width: 150,
-                                          height: 150,
-                                          child: AspectRatio(
-                                            aspectRatio:
-                                                controller!.value.aspectRatio,
-                                            child: controller!.buildPreview(),
-                                          ),
-                                        ),
-                                      )
-                                    : const SizedBox(width: 0, height: 0),
-                                _imageSelected || _imageCaptured
-                                    ? ClipOval(
-                                        child: SizedBox(
-                                          width: 150,
-                                          height: 150,
-                                          child: AspectRatio(
-                                            aspectRatio:
-                                                controller!.value.aspectRatio,
-                                            child: Image.file(
-                                              _image,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    : const SizedBox(width: 0, height: 0),
-                                !(_imageSelected || _imageCaptured)
-                                    ? Positioned(
-                                        bottom: 4,
-                                        right: 0,
-                                        child: ClipOval(
-                                          child: Container(
-                                            color: Colors.black,
-                                            height: 40,
-                                            width: 40,
-                                            child: IconButton(
-                                              icon:
-                                                  const Icon(Icons.add_a_photo),
-                                              onPressed: _selectImage,
+                                const Text(
+                                  'SIGN UP',
+                                  style: TextStyle(
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 16.0,
+                                ),
+                                Stack(
+                                  children: [
+                                    !_imageSelected && !_imageCaptured
+                                        ? ClipOval(
+                                            child: Container(
+                                              height: 150,
+                                              width: 150,
                                               color: const Color.fromARGB(
                                                   255, 240, 240, 240),
+                                              child: const SizedBox(
+                                                child: Icon(
+                                                  Icons.person,
+                                                  size: 140,
+                                                ),
+                                              ),
                                             ),
+                                          )
+                                        : const SizedBox(width: 0, height: 0),
+                                    _imageCaptureButtonClicked
+                                        ? ClipOval(
+                                            child: SizedBox(
+                                              width: 150,
+                                              height: 150,
+                                              child: AspectRatio(
+                                                aspectRatio: controller!
+                                                    .value.aspectRatio,
+                                                child:
+                                                    controller!.buildPreview(),
+                                              ),
+                                            ),
+                                          )
+                                        : const SizedBox(width: 0, height: 0),
+                                    _imageSelected || _imageCaptured
+                                        ? ClipOval(
+                                            child: SizedBox(
+                                              width: 150,
+                                              height: 150,
+                                              child: AspectRatio(
+                                                aspectRatio: controller!
+                                                    .value.aspectRatio,
+                                                child: Image.file(
+                                                  _image,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        : const SizedBox(width: 0, height: 0),
+                                    !(_imageSelected || _imageCaptured)
+                                        ? Positioned(
+                                            bottom: 4,
+                                            right: 0,
+                                            child: ClipOval(
+                                              child: Container(
+                                                color: Colors.black,
+                                                height: 40,
+                                                width: 40,
+                                                child: IconButton(
+                                                  icon: const Icon(
+                                                      Icons.add_a_photo),
+                                                  onPressed: _selectImage,
+                                                  color: const Color.fromARGB(
+                                                      255, 240, 240, 240),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        : const SizedBox(
+                                            height: 0,
+                                            width: 0,
+                                          ),
+                                    _imageSelected || _imageCaptured
+                                        ? Positioned(
+                                            bottom: 4,
+                                            right: 0,
+                                            child: ClipOval(
+                                              child: Container(
+                                                color: Colors.black,
+                                                height: 40,
+                                                width: 40,
+                                                child: IconButton(
+                                                  icon:
+                                                      const Icon(Icons.cancel),
+                                                  onPressed: _clearPhoto,
+                                                  color: const Color.fromARGB(
+                                                      255, 240, 240, 240),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        : const SizedBox(
+                                            height: 0,
+                                            width: 0,
+                                          ),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ClipOval(
+                                    child: Container(
+                                      color: Colors.black,
+                                      height: 40,
+                                      width: 40,
+                                      child: SizedBox(
+                                        child: IconButton(
+                                          onPressed:
+                                              _imageCaptureButtonClicked ==
+                                                      false
+                                                  ? _openCamera
+                                                  : _takePhoto,
+                                          icon: Icon(
+                                            _imageCaptureButtonClicked == false
+                                                ? Icons.camera_alt
+                                                : Icons.camera,
+                                            color: Colors.white,
                                           ),
                                         ),
-                                      )
-                                    : const SizedBox(
-                                        height: 0,
-                                        width: 0,
                                       ),
-                                _imageSelected || _imageCaptured
-                                    ? Positioned(
-                                        bottom: 4,
-                                        right: 0,
-                                        child: ClipOval(
-                                          child: Container(
-                                            color: Colors.black,
-                                            height: 40,
-                                            width: 40,
-                                            child: IconButton(
-                                              icon: const Icon(Icons.cancel),
-                                              onPressed: _clearPhoto,
-                                              color: const Color.fromARGB(
-                                                  255, 240, 240, 240),
-                                            ),
-                                          ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 16.0,
+                                ),
+                                TextFormField(
+                                  controller: _nameController,
+                                  onChanged: (value) {
+                                    var userTagName = value
+                                        .toLowerCase()
+                                        .replaceAll(' ', '')
+                                        .replaceAll('@', '');
+                                    _userTagIdController.text = userTagName;
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your name';
+                                    }
+                                    return null;
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'Name',
+                                    filled: true,
+                                    fillColor: Colors.grey[
+                                        200], // Use the desired grey color
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Adjust the border radius as needed
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Adjust the border radius as needed
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Same border radius for both states
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Same border radius for both states
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                  cursorColor: Colors
+                                      .black, // Set the cursor color to black
+                                ),
+                                const SizedBox(
+                                  height: 16.0,
+                                ),
+                                TextFormField(
+                                  controller: _userTagIdController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your tag name';
+                                    }
+                                    return null;
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'Tag Name',
+                                    filled: true,
+                                    fillColor: Colors.grey[
+                                        200], // Use the desired grey color
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Adjust the border radius as needed
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Adjust the border radius as needed
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Same border radius for both states
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Same border radius for both states
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                  cursorColor: Colors
+                                      .black, // Set the cursor color to black
+                                ),
+                                const SizedBox(
+                                  height: 16.0,
+                                ),
+                                TextFormField(
+                                  controller: _bioController,
+                                  decoration: InputDecoration(
+                                    hintText: 'Bio',
+                                    filled: true,
+                                    fillColor: Colors.grey[
+                                        200], // Use the desired grey color
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Adjust the border radius as needed
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Adjust the border radius as needed
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Same border radius for both states
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Same border radius for both states
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                  cursorColor: Colors
+                                      .black, // Set the cursor color to black
+                                ),
+                                const SizedBox(
+                                  height: 16.0,
+                                ),
+                                TextFormField(
+                                  controller: _phoneController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your phone number';
+                                    }
+                                    final phoneRegex =
+                                        RegExp(r'^\+?[0-9]{10,12}$');
+                                    if (!phoneRegex.hasMatch(value)) {
+                                      return 'Please enter a valid phone number';
+                                    }
+                                    return null;
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'Phone Number',
+                                    filled: true,
+                                    fillColor: Colors.grey[
+                                        200], // Use the desired grey color
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Adjust the border radius as needed
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Adjust the border radius as needed
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Same border radius for both states
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Same border radius for both states
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                  cursorColor: Colors
+                                      .black, // Set the cursor color to black
+                                ),
+                                const SizedBox(
+                                  height: 16.0,
+                                ),
+                                TextFormField(
+                                  controller: _emailController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your email address';
+                                    }
+                                    final emailRegex = RegExp(
+                                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                                    if (!emailRegex.hasMatch(value)) {
+                                      return 'Please enter a valid email address';
+                                    }
+                                    return null;
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'Email Address',
+                                    filled: true,
+                                    fillColor: Colors.grey[
+                                        200], // Use the desired grey color
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Adjust the border radius as needed
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Adjust the border radius as needed
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Same border radius for both states
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Same border radius for both states
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                  cursorColor: Colors
+                                      .black, // Set the cursor color to black
+                                ),
+                                const SizedBox(
+                                  height: 16.0,
+                                ),
+                                TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: true,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a password';
+                                    }
+                                    final passwordRegex = RegExp(
+                                        r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$');
+
+                                    // Evaluate password strength
+                                    int strengthScore = 0;
+                                    if (passwordRegex.hasMatch(value)) {
+                                      strengthScore++;
+                                    }
+                                    if (value.length >= 10) {
+                                      strengthScore++;
+                                    }
+                                    if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                                        .hasMatch(value)) {
+                                      strengthScore++;
+                                    }
+
+                                    switch (strengthScore) {
+                                      case 1:
+                                        return '''Weak Password!
+Password must be at least 8 characters long, and contain at least one uppercase letter,
+one lowercase letter, and one digit.''';
+                                      case 2:
+                                        return '''Moderate Password!
+Password must be at least 8 characters long, and contain at least one uppercase letter,
+one lowercase letter, and one digit.''';
+                                      case 3:
+                                        return null;
+                                      default:
+                                        return '''Very Weak Password!
+Password must be at least 8 characters long, and contain at least one uppercase letter,
+one lowercase letter, and one digit.''';
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'Password',
+                                    filled: true,
+                                    fillColor: Colors.grey[
+                                        200], // Use the desired grey color
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Adjust the border radius as needed
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide.none,
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Adjust the border radius as needed
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Same border radius for both states
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          45.0), // Same border radius for both states
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                  cursorColor: Colors
+                                      .black, // Set the cursor color to black
+                                ),
+                                const SizedBox(
+                                  height: 16.0,
+                                ),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: TextButton(
+                                    style: ButtonStyle(
+                                      shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(45.0),
                                         ),
-                                      )
-                                    : const SizedBox(
-                                        height: 0,
-                                        width: 0,
                                       ),
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                        Colors.black,
+                                      ),
+                                    ),
+                                    onPressed: !_isSignningUp
+                                        ? () {
+                                            log('SIGN UP');
+                                            _signUpUser(context);
+                                          }
+                                        : null,
+                                    child: const Text(
+                                      'SIGN UP',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 15.0,
+                                ),
+                                const Text("Already Have an account?"),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (_) => const SignInPage()),
+                                      );
+                                    },
+                                    style: ButtonStyle(
+                                      overlayColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Colors.transparent),
+                                    ),
+                                    child: const Text(
+                                      'Sign In',
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ClipOval(
-                                child: Container(
-                                  color: Colors.black,
-                                  height: 40,
-                                  width: 40,
-                                  child: SizedBox(
-                                    child: IconButton(
-                                      onPressed:
-                                          _imageCaptureButtonClicked == false
-                                              ? _openCamera
-                                              : _takePhoto,
-                                      icon: Icon(
-                                        _imageCaptureButtonClicked == false
-                                            ? Icons.camera_alt
-                                            : Icons.camera,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 16.0,
-                            ),
-                            TextFormField(
-                              controller: _nameController,
-                              onChanged: (value) {
-                                var userTagName = value
-                                    .toLowerCase()
-                                    .replaceAll(' ', '')
-                                    .replaceAll('@', '');
-                                _userTagIdController.text = userTagName;
-                              },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your name';
-                                }
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Name',
-                                filled: true,
-                                fillColor: Colors
-                                    .grey[200], // Use the desired grey color
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Adjust the border radius as needed
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Adjust the border radius as needed
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Same border radius for both states
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Same border radius for both states
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 1.5,
-                                  ),
-                                ),
-                              ),
-                              cursorColor:
-                                  Colors.black, // Set the cursor color to black
-                            ),
-                            const SizedBox(
-                              height: 16.0,
-                            ),
-                            TextFormField(
-                              controller: _userTagIdController,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your tag name';
-                                }
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Tag Name',
-                                filled: true,
-                                fillColor: Colors
-                                    .grey[200], // Use the desired grey color
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Adjust the border radius as needed
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Adjust the border radius as needed
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Same border radius for both states
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Same border radius for both states
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 1.5,
-                                  ),
-                                ),
-                              ),
-                              cursorColor:
-                                  Colors.black, // Set the cursor color to black
-                            ),
-                            const SizedBox(
-                              height: 16.0,
-                            ),
-                            TextFormField(
-                              controller: _bioController,
-                              decoration: InputDecoration(
-                                hintText: 'Bio',
-                                filled: true,
-                                fillColor: Colors
-                                    .grey[200], // Use the desired grey color
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Adjust the border radius as needed
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Adjust the border radius as needed
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Same border radius for both states
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Same border radius for both states
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 1.5,
-                                  ),
-                                ),
-                              ),
-                              cursorColor:
-                                  Colors.black, // Set the cursor color to black
-                            ),
-                            const SizedBox(
-                              height: 16.0,
-                            ),
-                            TextFormField(
-                              controller: _phoneController,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your phone number';
-                                }
-                                final phoneRegex = RegExp(r'^\+?[0-9]{10,12}$');
-                                if (!phoneRegex.hasMatch(value)) {
-                                  return 'Please enter a valid phone number';
-                                }
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Phone Number',
-                                filled: true,
-                                fillColor: Colors
-                                    .grey[200], // Use the desired grey color
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Adjust the border radius as needed
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Adjust the border radius as needed
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Same border radius for both states
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Same border radius for both states
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 1.5,
-                                  ),
-                                ),
-                              ),
-                              cursorColor:
-                                  Colors.black, // Set the cursor color to black
-                            ),
-                            const SizedBox(
-                              height: 16.0,
-                            ),
-                            TextFormField(
-                              controller: _emailController,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your email address';
-                                }
-                                final emailRegex = RegExp(
-                                    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-                                if (!emailRegex.hasMatch(value)) {
-                                  return 'Please enter a valid email address';
-                                }
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Email Address',
-                                filled: true,
-                                fillColor: Colors
-                                    .grey[200], // Use the desired grey color
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Adjust the border radius as needed
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Adjust the border radius as needed
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Same border radius for both states
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Same border radius for both states
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 1.5,
-                                  ),
-                                ),
-                              ),
-                              cursorColor:
-                                  Colors.black, // Set the cursor color to black
-                            ),
-                            const SizedBox(
-                              height: 16.0,
-                            ),
-                            TextFormField(
-                              controller: _passwordController,
-                              obscureText: true,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a password';
-                                }
-                                final passwordRegex = RegExp(
-                                    r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$');
-
-                                // Evaluate password strength
-                                int strengthScore = 0;
-                                if (passwordRegex.hasMatch(value)) {
-                                  strengthScore++;
-                                }
-                                if (value.length >= 10) {
-                                  strengthScore++;
-                                }
-                                if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
-                                    .hasMatch(value)) {
-                                  strengthScore++;
-                                }
-
-                                switch (strengthScore) {
-                                  case 1:
-                                    return '''Weak Password!
-Password must be at least 8 characters long, and contain at least one uppercase letter,
-one lowercase letter, and one digit.''';
-                                  case 2:
-                                    return '''Moderate Password!
-Password must be at least 8 characters long, and contain at least one uppercase letter,
-one lowercase letter, and one digit.''';
-                                  case 3:
-                                    return null;
-                                  default:
-                                    return '''Very Weak Password!
-Password must be at least 8 characters long, and contain at least one uppercase letter,
-one lowercase letter, and one digit.''';
-                                }
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Password',
-                                filled: true,
-                                fillColor: Colors
-                                    .grey[200], // Use the desired grey color
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Adjust the border radius as needed
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Adjust the border radius as needed
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Same border radius for both states
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      45.0), // Same border radius for both states
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                    width: 1.5,
-                                  ),
-                                ),
-                              ),
-                              cursorColor:
-                                  Colors.black, // Set the cursor color to black
-                            ),
-                            const SizedBox(
-                              height: 16.0,
-                            ),
-                            SizedBox(
-                              width: double.infinity,
-                              child: TextButton(
-                                style: ButtonStyle(
-                                  shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(45.0),
-                                    ),
-                                  ),
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                    Colors.black,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  _signUpUser(context);
-                                },
-                                child: const Text(
-                                  'SIGN UP',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 15.0,
-                            ),
-                            const Text("Already Have an account?"),
-                            SizedBox(
-                              width: double.infinity,
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => const LoginPage()),
-                                  );
-                                },
-                                style: ButtonStyle(
-                                  overlayColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Colors.transparent),
-                                ),
-                                child: const Text(
-                                  'Sign In',
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                )
-              : const Center(
-                  child: CircularProgressIndicator(
-                    backgroundColor: Colors.white,
-                  ),
-                )
-          : Container(),
+                    )
+                  : const Center(
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.white,
+                      ),
+                    )
+              : Container()
+          : const Center(
+              child: Icon(
+                Icons.all_inclusive_sharp,
+                size: 50.0,
+              ),
+            ),
     );
   }
 }

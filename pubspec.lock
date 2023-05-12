@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.7"
+  args:
+    dependency: transitive
+    description:
+      name: args
+      sha256: c372bb384f273f0c2a8aaaa226dad84dc27c8519a691b888725dec59518ad53a
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.1"
   async:
     dependency: transitive
     description:
@@ -198,6 +206,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0"
+  flutter_native_splash:
+    dependency: "direct main"
+    description:
+      name: flutter_native_splash
+      sha256: af665ef80a213a9ed502845a3d7a61b9acca4100ee7e9f067a7440bc3acd6730
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.19"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -1045,6 +1061,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.2.2"
+  yaml:
+    dependency: transitive
+    description:
+      name: yaml
+      sha256: "75769501ea3489fca56601ff33454fe45507ea3bfb014161abc3b43ae25989d5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.2"
   yet_another_json_isolate:
     dependency: transitive
     description:

@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/feed.page.dart';
-import 'package:instagram_clone/login.page.dart';
+import 'package:instagram_clone/signin.page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:instagram_clone/profile.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -33,7 +33,7 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   final List<Widget> screens = [
-    const LoginPage(),
+    const SignInPage(),
     const FeedPage(),
     const ProfilePage(),
   ];
@@ -53,8 +53,8 @@ class MyApp extends StatelessWidget {
       home: Navigator(
         pages: const [
           MaterialPage(
-            child: LoginPage(),
-            key: ValueKey('LoginPage'),
+            child: SignInPage(),
+            key: ValueKey('SignInPage'),
           ),
         ],
         onPopPage: (route, result) {
