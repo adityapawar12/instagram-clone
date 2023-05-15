@@ -28,7 +28,6 @@ TextSpan buildClickableTextSpan(String text, int userId, BuildContext context) {
                   .select<Map<String, dynamic>>('*')
                   .eq('user_tag_id', word.substring(1))
                   .single();
-              log(user.toString());
               if (user['id'] == userId) {
                 // ignore: use_build_context_synchronously
                 Navigator.push(
@@ -62,7 +61,6 @@ TextSpan buildClickableTextSpan(String text, int userId, BuildContext context) {
           ),
           recognizer: TapGestureRecognizer()
             ..onTap = () async {
-              log('ok');
               // ignore: use_build_context_synchronously
               Navigator.push(
                 context,

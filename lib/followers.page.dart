@@ -21,8 +21,6 @@ class _FollowersPageState extends State<FollowersPage> {
         .select<List<Map<String, dynamic>>>('*')
         .eq('followed_user_id', widget.userId);
 
-    log('the followers a.... ${followers.toString}');
-
     return followers;
   }
 
@@ -123,8 +121,6 @@ class _FollowersPageState extends State<FollowersPage> {
             itemCount: followers.length,
             itemBuilder: ((context, index) {
               final dynamic follower = followers[index];
-
-              log(follower.toString());
 
               return FutureBuilder(
                 future: _getUser(follower['follower_user_id']),

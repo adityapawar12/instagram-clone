@@ -15,10 +15,14 @@ class HashtagPosts extends StatefulWidget {
 }
 
 class _HashtagPostsState extends State<HashtagPosts> {
+  // HASHTAG
   late dynamic _hashtag = {};
 
   // USER
   static int _userId = 0;
+
+  // FOLLOW/UNFOLLOW SUBMITTED
+  bool _isFollwingOrUnfollowing = false;
 
   // GET USER INFO FROM SESSION
   Future<void> _loadPreferences() async {
@@ -34,8 +38,6 @@ class _HashtagPostsState extends State<HashtagPosts> {
         .from('hashtags')
         .select<List<Map<String, dynamic>>>("*")
         .eq('hashtag', widget.hashtag);
-
-    log(hashtag.toString());
 
     setState(() {
       _hashtag = hashtag;
@@ -77,11 +79,64 @@ class _HashtagPostsState extends State<HashtagPosts> {
 
   // FOLLOW HASHTAG
   Future<dynamic> _follow(int hashTagId) async {
+    setState(() {
+      _isFollwingOrUnfollowing = true;
+    });
+
+    final checkAlreadyFollowed = await Supabase.instance.client
+        .from('hashtag_followers')
+        .select()
+        .eq('follower_user_id', _userId)
+        .eq('followed_hashtag_id', hashTagId);
+
+    log(checkAlreadyFollowed.toString());
+    // ALREADY FOLLOWED HASHTAG
+    if (checkAlreadyFollowed != null && checkAlreadyFollowed.length > 0) {
+      setState(() {
+        _isFollwingOrUnfollowing = false;
+      });
+      return;
+    }
+
     var obj = {'follower_user_id': _userId, 'followed_hashtag_id': hashTagId};
 
     await Supabase.instance.client.from('hashtag_followers').insert(obj);
 
-    setState(() {});
+    setState(() {
+      _isFollwingOrUnfollowing = false;
+    });
+  }
+
+  // UNFOLLOW HASHTAG
+  Future<dynamic> _unfollow(int hashTagId) async {
+    setState(() {
+      _isFollwingOrUnfollowing = true;
+    });
+
+    final checkAlreadyFollowed = await Supabase.instance.client
+        .from('hashtag_followers')
+        .select()
+        .eq('follower_user_id', _userId)
+        .eq('followed_hashtag_id', hashTagId);
+
+    log(checkAlreadyFollowed.toString());
+
+    // ALREADY FOLLOWED HASHTAG
+    if (checkAlreadyFollowed != null && checkAlreadyFollowed.length > 0) {
+      await Supabase.instance.client
+          .from('hashtag_followers')
+          .delete()
+          .eq('follower_user_id', _userId)
+          .eq('followed_hashtag_id', hashTagId);
+
+      setState(() {
+        _isFollwingOrUnfollowing = false;
+      });
+      return;
+    }
+    setState(() {
+      _isFollwingOrUnfollowing = false;
+    });
   }
 
   // GET POST
@@ -168,8 +223,6 @@ class _HashtagPostsState extends State<HashtagPosts> {
                         }
                         final dynamic post = snapshot.data!;
 
-                        log(snapshot.data!.toString());
-
                         return post[0]['users']['profile_image_url'] != null &&
                                 post[0]['users']['profile_image_url'].length > 0
                             ? ClipOval(
@@ -221,7 +274,6 @@ class _HashtagPostsState extends State<HashtagPosts> {
                                     ? _hashtag[0]['id']
                                     : 0),
                             builder: (context, snapshot) {
-                              log(snapshot.data.toString());
                               if (!snapshot.hasData) {
                                 return const Text(
                                   '0',
@@ -264,12 +316,15 @@ class _HashtagPostsState extends State<HashtagPosts> {
                                     padding: const EdgeInsets.fromLTRB(
                                         10.0, 0, 10.0, 0),
                                     child: TextButton(
-                                      onPressed: () {
-                                        _follow(_hashtag != null &&
-                                                _hashtag.length > 0
-                                            ? _hashtag[0]['id']
-                                            : 0);
-                                      },
+                                      onPressed: !_isFollwingOrUnfollowing
+                                          ? () {
+                                              log('FOLLOW HASHTAG');
+                                              _follow(_hashtag != null &&
+                                                      _hashtag.length > 0
+                                                  ? _hashtag[0]['id']
+                                                  : 0);
+                                            }
+                                          : null,
                                       style: ButtonStyle(
                                         backgroundColor:
                                             MaterialStateProperty.all<Color>(
@@ -291,7 +346,15 @@ class _HashtagPostsState extends State<HashtagPosts> {
                                     padding: const EdgeInsets.fromLTRB(
                                         10.0, 0, 10.0, 0),
                                     child: TextButton(
-                                      onPressed: () {},
+                                      onPressed: !_isFollwingOrUnfollowing
+                                          ? () {
+                                              log('UNFOLLOW HASHTAG');
+                                              _unfollow(_hashtag != null &&
+                                                      _hashtag.length > 0
+                                                  ? _hashtag[0]['id']
+                                                  : 0);
+                                            }
+                                          : null,
                                       style: ButtonStyle(
                                         backgroundColor:
                                             MaterialStateProperty.all<Color>(
@@ -303,7 +366,7 @@ class _HashtagPostsState extends State<HashtagPosts> {
                                           Colors.black,
                                         ),
                                       ),
-                                      child: const Text('Followed'),
+                                      child: const Text('Unfollow'),
                                     ),
                                   );
                                 }
@@ -313,7 +376,15 @@ class _HashtagPostsState extends State<HashtagPosts> {
                                   padding: const EdgeInsets.fromLTRB(
                                       10.0, 0, 10.0, 0),
                                   child: TextButton(
-                                    onPressed: () {},
+                                    onPressed: !_isFollwingOrUnfollowing
+                                        ? () {
+                                            log('UNFOLLOW HASHTAG');
+                                            _unfollow(_hashtag != null &&
+                                                    _hashtag.length > 0
+                                                ? _hashtag[0]['id']
+                                                : 0);
+                                          }
+                                        : null,
                                     style: ButtonStyle(
                                       backgroundColor:
                                           MaterialStateProperty.all<Color>(
@@ -325,7 +396,7 @@ class _HashtagPostsState extends State<HashtagPosts> {
                                         Colors.black,
                                       ),
                                     ),
-                                    child: const Text('Followed'),
+                                    child: const Text('Unfollow'),
                                   ),
                                 );
                               }
@@ -378,11 +449,7 @@ class _HashtagPostsState extends State<HashtagPosts> {
                                     );
                                   }
 
-                                  // log(snapshot.data!.toString());
-
                                   final dynamic post = snapshot.data!;
-
-                                  // return Text(post[0].toString());
 
                                   return Column(
                                     children: [

@@ -1030,7 +1030,6 @@ one lowercase letter, and one digit.''';
                                     ),
                                     onPressed: !_isSignningUp
                                         ? () {
-                                            log('SIGN UP');
                                             _signUpUser(context);
                                           }
                                         : null,

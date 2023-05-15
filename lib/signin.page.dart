@@ -350,7 +350,6 @@ class _SignInPageState extends State<SignInPage> {
                         ),
                         onPressed: !_isSignningIn
                             ? () {
-                                log('SIGN IN');
                                 _signIn(context);
                               }
                             : null,

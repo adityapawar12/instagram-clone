@@ -180,17 +180,12 @@ class _CreatePostState extends State<CreatePost> {
       var post =
           await Supabase.instance.client.from('posts').insert(obj).select();
 
-      log(post.toString());
-
       if (post![0]!['caption']!.length > 0) {
-        log('CAPTIONNNNNNNNNNNNNNNNNNNNNNNNNNNN');
         String captionText = post![0]!['caption']!;
         List<String> captionWords = captionText.split(" ");
 
         for (String captionWord in captionWords) {
           if (captionWord.startsWith("#")) {
-            log("Found word starting with #: $captionWord");
-
             var hashtagExists = await Supabase.instance.client
                 .from('hashtags')
                 .select("id")
