@@ -160,8 +160,17 @@ class _FeedPageState extends State<FeedPage> {
             backgroundColor: Colors.white,
             shadowColor: Colors.white,
             elevation: 0,
-            leading: Image.network(
-              'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/1280px-Instagram_logo.svg.png',
+            leadingWidth: 100,
+            leading: Container(
+              alignment: Alignment.center,
+              child: const Text(
+                'Instagram',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
           body: ListView.builder(
@@ -184,9 +193,18 @@ class _FeedPageState extends State<FeedPage> {
                                 post['users']['profile_image_url'],
                               ),
                             )
-                          : const CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                  'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png'),
+                          : ClipOval(
+                              child: Container(
+                                height: 40,
+                                width: 40,
+                                color: const Color.fromARGB(255, 240, 240, 240),
+                                child: const SizedBox(
+                                  child: Icon(
+                                    Icons.person,
+                                    size: 30,
+                                  ),
+                                ),
+                              ),
                             ),
                       title: Text(
                         post['users']['name'],

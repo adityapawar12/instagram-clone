@@ -190,10 +190,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             height: 90,
                             width: 90,
                             color: const Color.fromARGB(255, 240, 240, 240),
-                            child: SizedBox(
-                              child: Image.network(
-                                'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
-                                height: 90,
+                            child: const SizedBox(
+                              child: Icon(
+                                Icons.person,
+                                size: 80,
                               ),
                             ),
                           ),

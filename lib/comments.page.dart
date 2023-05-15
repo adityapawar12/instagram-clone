@@ -278,11 +278,10 @@ class _CommentsPageState extends State<CommentsPage> {
                                       width: 40,
                                       color: const Color.fromARGB(
                                           255, 240, 240, 240),
-                                      child: SizedBox(
-                                        child: Image.network(
-                                          'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
-                                          height: 40,
-                                          width: 40,
+                                      child: const SizedBox(
+                                        child: Icon(
+                                          Icons.person,
+                                          size: 30,
                                         ),
                                       ),
                                     ),
@@ -393,12 +392,12 @@ class _CommentsPageState extends State<CommentsPage> {
                                   width: 40,
                                   color:
                                       const Color.fromARGB(255, 240, 240, 240),
-                                  child: SizedBox(
-                                      child: Image.network(
-                                    'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
-                                    height: 40,
-                                    width: 40,
-                                  )),
+                                  child: const SizedBox(
+                                    child: Icon(
+                                      Icons.person,
+                                      size: 30,
+                                    ),
+                                  ),
                                 ),
                               ),
                       ),
@@ -499,11 +498,10 @@ class _CommentsPageState extends State<CommentsPage> {
                                     width: 40,
                                     color: const Color.fromARGB(
                                         255, 240, 240, 240),
-                                    child: SizedBox(
-                                      child: Image.network(
-                                        'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
-                                        height: 40,
-                                        width: 40,
+                                    child: const SizedBox(
+                                      child: Icon(
+                                        Icons.person,
+                                        size: 30,
                                       ),
                                     ),
                                   ),
@@ -614,12 +612,12 @@ class _CommentsPageState extends State<CommentsPage> {
                                           width: 40,
                                           color: const Color.fromARGB(
                                               255, 240, 240, 240),
-                                          child: SizedBox(
-                                              child: Image.network(
-                                            'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
-                                            height: 40,
-                                            width: 40,
-                                          )),
+                                          child: const SizedBox(
+                                            child: Icon(
+                                              Icons.person,
+                                              size: 30,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                 Container(
@@ -820,12 +818,12 @@ class _CommentsPageState extends State<CommentsPage> {
                                 height: 40,
                                 width: 40,
                                 color: const Color.fromARGB(255, 240, 240, 240),
-                                child: SizedBox(
-                                    child: Image.network(
-                                  'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
-                                  height: 40,
-                                  width: 40,
-                                )),
+                                child: const SizedBox(
+                                  child: Icon(
+                                    Icons.person,
+                                    size: 30,
+                                  ),
+                                ),
                               ),
                             ),
                     ),

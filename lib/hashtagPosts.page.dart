@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -78,7 +77,7 @@ class _HashtagPostsState extends State<HashtagPosts> {
   }
 
   // FOLLOW HASHTAG
-  Future<dynamic> _follow(int hashTagId) async {
+  Future<dynamic> _followHashtag(int hashTagId) async {
     setState(() {
       _isFollwingOrUnfollowing = true;
     });
@@ -89,7 +88,6 @@ class _HashtagPostsState extends State<HashtagPosts> {
         .eq('follower_user_id', _userId)
         .eq('followed_hashtag_id', hashTagId);
 
-    log(checkAlreadyFollowed.toString());
     // ALREADY FOLLOWED HASHTAG
     if (checkAlreadyFollowed != null && checkAlreadyFollowed.length > 0) {
       setState(() {
@@ -108,7 +106,7 @@ class _HashtagPostsState extends State<HashtagPosts> {
   }
 
   // UNFOLLOW HASHTAG
-  Future<dynamic> _unfollow(int hashTagId) async {
+  Future<dynamic> _unfollowHashtag(int hashTagId) async {
     setState(() {
       _isFollwingOrUnfollowing = true;
     });
@@ -118,8 +116,6 @@ class _HashtagPostsState extends State<HashtagPosts> {
         .select()
         .eq('follower_user_id', _userId)
         .eq('followed_hashtag_id', hashTagId);
-
-    log(checkAlreadyFollowed.toString());
 
     // ALREADY FOLLOWED HASHTAG
     if (checkAlreadyFollowed != null && checkAlreadyFollowed.length > 0) {
@@ -212,10 +208,29 @@ class _HashtagPostsState extends State<HashtagPosts> {
                               width: 75,
                               color: const Color.fromARGB(255, 240, 240, 240),
                               child: SizedBox(
-                                child: Image.network(
-                                  'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
-                                  height: 75,
-                                  width: 75,
+                                child: ClipOval(
+                                  child: Container(
+                                    height: 90,
+                                    width: 90,
+                                    color: const Color.fromARGB(
+                                        255, 240, 240, 240),
+                                    child: SizedBox(
+                                      child: ClipOval(
+                                        child: Container(
+                                          height: 75,
+                                          width: 75,
+                                          color: const Color.fromARGB(
+                                              255, 240, 240, 240),
+                                          child: const SizedBox(
+                                            child: Icon(
+                                              Icons.person,
+                                              size: 65,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -223,7 +238,9 @@ class _HashtagPostsState extends State<HashtagPosts> {
                         }
                         final dynamic post = snapshot.data!;
 
-                        return post[0]['users']['profile_image_url'] != null &&
+                        return post != null &&
+                                post.length > 0 &&
+                                post[0]['users']['profile_image_url'] != null &&
                                 post[0]['users']['profile_image_url'].length > 0
                             ? ClipOval(
                                 child: Container(
@@ -247,11 +264,18 @@ class _HashtagPostsState extends State<HashtagPosts> {
                                   width: 75,
                                   color:
                                       const Color.fromARGB(255, 240, 240, 240),
-                                  child: SizedBox(
-                                    child: Image.network(
-                                      'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
+                                  child: ClipOval(
+                                    child: Container(
                                       height: 75,
                                       width: 75,
+                                      color: const Color.fromARGB(
+                                          255, 240, 240, 240),
+                                      child: const SizedBox(
+                                        child: Icon(
+                                          Icons.person,
+                                          size: 65,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -318,8 +342,7 @@ class _HashtagPostsState extends State<HashtagPosts> {
                                     child: TextButton(
                                       onPressed: !_isFollwingOrUnfollowing
                                           ? () {
-                                              log('FOLLOW HASHTAG');
-                                              _follow(_hashtag != null &&
+                                              _followHashtag(_hashtag != null &&
                                                       _hashtag.length > 0
                                                   ? _hashtag[0]['id']
                                                   : 0);
@@ -348,11 +371,11 @@ class _HashtagPostsState extends State<HashtagPosts> {
                                     child: TextButton(
                                       onPressed: !_isFollwingOrUnfollowing
                                           ? () {
-                                              log('UNFOLLOW HASHTAG');
-                                              _unfollow(_hashtag != null &&
-                                                      _hashtag.length > 0
-                                                  ? _hashtag[0]['id']
-                                                  : 0);
+                                              _unfollowHashtag(
+                                                  _hashtag != null &&
+                                                          _hashtag.length > 0
+                                                      ? _hashtag[0]['id']
+                                                      : 0);
                                             }
                                           : null,
                                       style: ButtonStyle(
@@ -378,8 +401,7 @@ class _HashtagPostsState extends State<HashtagPosts> {
                                   child: TextButton(
                                     onPressed: !_isFollwingOrUnfollowing
                                         ? () {
-                                            log('UNFOLLOW HASHTAG');
-                                            _unfollow(_hashtag != null &&
+                                            _unfollowHashtag(_hashtag != null &&
                                                     _hashtag.length > 0
                                                 ? _hashtag[0]['id']
                                                 : 0);

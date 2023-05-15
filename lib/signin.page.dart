@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/signup.page.dart';
 import 'package:instagram_clone/Container.page.dart';

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/container.page.dart';
@@ -19,7 +17,7 @@ TextSpan buildClickableTextSpan(String text, int userId, BuildContext context) {
           text: '$word ',
           style: const TextStyle(
             color: Colors.blue,
-            decoration: TextDecoration.underline,
+            decoration: TextDecoration.none,
           ),
           recognizer: TapGestureRecognizer()
             ..onTap = () async {
@@ -57,7 +55,7 @@ TextSpan buildClickableTextSpan(String text, int userId, BuildContext context) {
           text: '$word ',
           style: const TextStyle(
             color: Colors.blue,
-            decoration: TextDecoration.underline,
+            decoration: TextDecoration.none,
           ),
           recognizer: TapGestureRecognizer()
             ..onTap = () async {

@@ -23,10 +23,23 @@ class _OthersProfileState extends State<OthersProfile> {
 
   // USER
   static int _userId = 0;
+  late dynamic _followInfo = {};
 
   // FOLLOWERS AND FOLLOWED USERS COUNT
   late int _followersCount = 0;
   late int _followedCount = 0;
+
+  // SHOW BOTTOM SECTION
+  bool _isSectionVisible = false;
+
+  // FOLLOW/UNFOLLOW SUBMITTED
+  bool _isFollwingOrUnfollowing = false;
+
+  // ADD/REMOVE CLOSE FRIEND SUBMITTED
+  bool _isAddOrRemoveCF = false;
+
+  // ADD/REMOVE FAVOURITE USER SUBMITTED
+  bool _isAddOrRemoveFU = false;
 
   // GET USER INFO FROM SESSION
   Future<void> _loadPreferences() async {
@@ -66,28 +79,72 @@ class _OthersProfileState extends State<OthersProfile> {
     });
   }
 
-  // Follow User
-  Future<dynamic> _follow() async {
+  // FOLLOW USER
+  Future<dynamic> _followUser() async {
+    setState(() {
+      _isFollwingOrUnfollowing = true;
+    });
+
+    final bool checkAlreadyFollowed = await _isUserFollowed();
+
+    // ALREADY FOLLOWED HASHTAG
+    if (checkAlreadyFollowed == true) {
+      setState(() {
+        _isFollwingOrUnfollowing = false;
+      });
+      return;
+    }
+
     var obj = {
       'follower_user_id': _userId,
       'followed_user_id': widget.userId,
-      'is_close': false
     };
 
     await Supabase.instance.client.from('followers').insert(obj);
     setState(() {
+      _isFollwingOrUnfollowing = false;
+      _postsCount = _posts.length;
+    });
+  }
+
+  // UNFOLLOW USER
+  Future<dynamic> _unfollowUser() async {
+    setState(() {
+      _isFollwingOrUnfollowing = true;
+    });
+
+    final bool checkAlreadyFollowed = await _isUserFollowed();
+
+    // ALREADY FOLLOWED HASHTAG
+    if (checkAlreadyFollowed == true) {
+      await Supabase.instance.client
+          .from('followers')
+          .delete()
+          .eq('follower_user_id', _userId)
+          .eq('followed_user_id', widget.userId);
+
+      setState(() {
+        _isFollwingOrUnfollowing = false;
+        _postsCount = _posts.length;
+      });
+      return;
+    }
+
+    setState(() {
+      _isFollwingOrUnfollowing = false;
       _postsCount = _posts.length;
     });
   }
 
   // CHECK IF USER IS FOLLOWED OR NOT
   Future<bool> _isUserFollowed() async {
-    final checkLike = await Supabase.instance.client
+    final userAlreadyFollowed = await Supabase.instance.client
         .from('followers')
         .select()
         .eq('follower_user_id', _userId)
         .eq('followed_user_id', widget.userId);
-    if (checkLike.length > 0) {
+    if (userAlreadyFollowed.length > 0) {
+      _followInfo = userAlreadyFollowed;
       return true;
     }
     return false;
@@ -114,6 +171,126 @@ class _OthersProfileState extends State<OthersProfile> {
 
     setState(() {
       _followedCount = followedCount.length;
+    });
+  }
+
+  // CHECK IF USER IS ALREADY A CLOSE FRIEND
+  Future<bool> _isCloseFriend() async {
+    final checkAlreadyCloseFriends = await Supabase.instance.client
+        .from('close_friends')
+        .select()
+        .eq('follow_id', _followInfo[0]['id']);
+
+    if (checkAlreadyCloseFriends.length > 0) {
+      return true;
+    }
+    return false;
+  }
+
+  // ADD CLOSE FRIEND
+  Future<dynamic> _addCloseFriend() async {
+    setState(() {
+      _isAddOrRemoveCF = true;
+    });
+
+    final bool checkAlreadyCloseFriends = await _isCloseFriend();
+
+    if (checkAlreadyCloseFriends == true) {
+      setState(() {
+        _isAddOrRemoveCF = false;
+      });
+      return;
+    }
+
+    var obj = {
+      'follow_id': _followInfo[0]['id'],
+    };
+
+    await Supabase.instance.client.from('close_friends').insert(obj);
+
+    setState(() {
+      _isAddOrRemoveCF = false;
+    });
+  }
+
+  // REMOVE CLOSE FRIEND
+  Future<dynamic> _removeCloseFriend() async {
+    setState(() {
+      _isAddOrRemoveCF = true;
+    });
+    final bool checkAlreadyFavouriteUsers = await _isCloseFriend();
+    if (checkAlreadyFavouriteUsers == true) {
+      await Supabase.instance.client
+          .from('close_friends')
+          .delete()
+          .eq('follow_id', _followInfo[0]['id']);
+      setState(() {
+        _isAddOrRemoveCF = false;
+      });
+      return;
+    }
+    setState(() {
+      _isAddOrRemoveCF = false;
+    });
+  }
+
+  // CHECK IF USER IS ALREADY A FAVOURITE USER
+  Future<bool> _isFavouriteUser() async {
+    final checkAlreadyFavouriteUsers = await Supabase.instance.client
+        .from('favourite_users')
+        .select()
+        .eq('follow_id', _followInfo[0]['id']);
+
+    if (checkAlreadyFavouriteUsers.length > 0) {
+      return true;
+    }
+    return false;
+  }
+
+  // ADD FAVOURITE USER
+  Future<dynamic> _addFavouriteUser() async {
+    setState(() {
+      _isAddOrRemoveFU = true;
+    });
+
+    final bool checkAlreadyFavouriteUsers = await _isFavouriteUser();
+
+    if (checkAlreadyFavouriteUsers == true) {
+      setState(() {
+        _isAddOrRemoveFU = false;
+      });
+      return;
+    }
+
+    var obj = {
+      'follow_id': _followInfo[0]['id'],
+    };
+
+    await Supabase.instance.client.from('favourite_users').insert(obj);
+
+    setState(() {
+      _isAddOrRemoveFU = false;
+    });
+  }
+
+  // REMOVE FAVOURITE USER
+  Future<dynamic> _removeFavouriteUser() async {
+    setState(() {
+      _isAddOrRemoveFU = true;
+    });
+    final bool checkAlreadyFavouriteUsers = await _isCloseFriend();
+    if (checkAlreadyFavouriteUsers == true) {
+      await Supabase.instance.client
+          .from('favourite_users')
+          .delete()
+          .eq('follow_id', _followInfo[0]['id']);
+      setState(() {
+        _isAddOrRemoveFU = false;
+      });
+      return;
+    }
+    setState(() {
+      _isAddOrRemoveFU = false;
     });
   }
 
@@ -207,10 +384,18 @@ class _OthersProfileState extends State<OthersProfile> {
                                 height: 90,
                                 width: 90,
                                 color: const Color.fromARGB(255, 240, 240, 240),
-                                child: SizedBox(
-                                  child: Image.network(
-                                    'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png',
+                                child: ClipOval(
+                                  child: Container(
                                     height: 90,
+                                    width: 90,
+                                    color: const Color.fromARGB(
+                                        255, 240, 240, 240),
+                                    child: const SizedBox(
+                                      child: Icon(
+                                        Icons.person,
+                                        size: 80,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -351,9 +536,11 @@ class _OthersProfileState extends State<OthersProfile> {
                                 padding:
                                     const EdgeInsets.fromLTRB(25.0, 0, 25.0, 0),
                                 child: TextButton(
-                                  onPressed: () {
-                                    _follow();
-                                  },
+                                  onPressed: !_isFollwingOrUnfollowing
+                                      ? () {
+                                          _followUser();
+                                        }
+                                      : null,
                                   style: ButtonStyle(
                                     backgroundColor:
                                         MaterialStateProperty.all<Color>(
@@ -377,7 +564,11 @@ class _OthersProfileState extends State<OthersProfile> {
                                 padding:
                                     const EdgeInsets.fromLTRB(25.0, 0, 25.0, 0),
                                 child: TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    setState(() {
+                                      _isSectionVisible = !_isSectionVisible;
+                                    });
+                                  },
                                   style: ButtonStyle(
                                     backgroundColor:
                                         MaterialStateProperty.all<Color>(
@@ -388,7 +579,28 @@ class _OthersProfileState extends State<OthersProfile> {
                                       Colors.black,
                                     ),
                                   ),
-                                  child: const Text('Followed'),
+                                  child: RichText(
+                                    text: const TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text:
+                                              'Following', // Replace with your desired text
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        WidgetSpan(
+                                          child: SizedBox(
+                                              width:
+                                                  5), // Optional: Add some spacing between the icon and text
+                                        ),
+                                        WidgetSpan(
+                                          child: Icon(Icons
+                                              .arrow_drop_down), // Replace with the desired icon
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
                             );
@@ -400,7 +612,11 @@ class _OthersProfileState extends State<OthersProfile> {
                               padding:
                                   const EdgeInsets.fromLTRB(25.0, 0, 25.0, 0),
                               child: TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  setState(() {
+                                    _isSectionVisible = !_isSectionVisible;
+                                  });
+                                },
                                 style: ButtonStyle(
                                   backgroundColor:
                                       MaterialStateProperty.all<Color>(
@@ -411,7 +627,28 @@ class _OthersProfileState extends State<OthersProfile> {
                                     Colors.black,
                                   ),
                                 ),
-                                child: const Text('Followed'),
+                                child: RichText(
+                                  text: const TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text:
+                                            'Following', // Replace with your desired text
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      WidgetSpan(
+                                        child: SizedBox(
+                                            width:
+                                                5), // Optional: Add some spacing between the icon and text
+                                      ),
+                                      WidgetSpan(
+                                        child: Icon(Icons
+                                            .arrow_drop_down), // Replace with the desired icon
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           );
@@ -577,6 +814,353 @@ class _OthersProfileState extends State<OthersProfile> {
                     ],
                   ),
                 ),
+                _isSectionVisible
+                    ? // Bottom section
+                    AnimatedPositioned(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        bottom: _isSectionVisible
+                            ? 0
+                            : -200, // Adjust the height as needed
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          width: double.infinity,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border(
+                                    top: BorderSide(
+                                      color: Color.fromARGB(255, 240, 240, 240),
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                ),
+                                padding: const EdgeInsets.fromLTRB(
+                                    20.0, 20.0, 20.0, 20.0),
+                                width: double.infinity,
+                                alignment: Alignment.center,
+                                child: Text(
+                                  user['name'],
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border(
+                                    top: BorderSide(
+                                      color: Color.fromARGB(255, 240, 240, 240),
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                ),
+                                padding: const EdgeInsets.fromLTRB(
+                                    20.0, 4.0, 20.0, 4.0),
+                                width: double.infinity,
+                                alignment: Alignment.centerLeft,
+                                child: FutureBuilder<dynamic>(
+                                  future: _isCloseFriend(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      if (snapshot.data.toString() == 'true') {
+                                        return Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: TextButton(
+                                                  onPressed: !_isAddOrRemoveCF
+                                                      ? () {
+                                                          _removeCloseFriend();
+                                                          setState(() {
+                                                            _isSectionVisible =
+                                                                false;
+                                                          });
+                                                        }
+                                                      : null,
+                                                  style: TextButton.styleFrom(
+                                                    foregroundColor:
+                                                        Colors.black,
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                  ),
+                                                  child: const Text(
+                                                      'Remove Close Friend'),
+                                                ),
+                                              ),
+                                            ),
+                                            ShaderMask(
+                                              shaderCallback: (Rect bounds) {
+                                                return const LinearGradient(
+                                                  colors: [
+                                                    Colors.green,
+                                                    Colors.cyan
+                                                  ],
+                                                  begin: Alignment.centerLeft,
+                                                  end: Alignment.centerRight,
+                                                ).createShader(bounds);
+                                              },
+                                              child: const Icon(
+                                                Icons.stars_outlined,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          ],
+                                        );
+                                      }
+                                      return Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: TextButton(
+                                                onPressed: !_isAddOrRemoveCF
+                                                    ? () {
+                                                        _addCloseFriend();
+                                                        setState(() {
+                                                          _isSectionVisible =
+                                                              false;
+                                                        });
+                                                      }
+                                                    : null,
+                                                style: TextButton.styleFrom(
+                                                  foregroundColor: Colors.black,
+                                                  backgroundColor: Colors.white,
+                                                ),
+                                                child: const Text(
+                                                    'Add Close Friend'),
+                                              ),
+                                            ),
+                                          ),
+                                          const Align(
+                                            alignment: Alignment.center,
+                                            child: Icon(Icons.stars),
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                    return Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: TextButton(
+                                              onPressed: !_isAddOrRemoveCF
+                                                  ? () {
+                                                      _addCloseFriend();
+                                                      setState(() {
+                                                        _isSectionVisible =
+                                                            false;
+                                                      });
+                                                    }
+                                                  : null,
+                                              style: TextButton.styleFrom(
+                                                foregroundColor: Colors.black,
+                                                backgroundColor: Colors.white,
+                                              ),
+                                              child: const Text(
+                                                  'Add Close Friend'),
+                                            ),
+                                          ),
+                                        ),
+                                        const Align(
+                                          alignment: Alignment.center,
+                                          child: Icon(Icons.stars),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                              Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                ),
+                                padding: const EdgeInsets.fromLTRB(
+                                    20.0, 4.0, 20.0, 4.0),
+                                width: double.infinity,
+                                alignment: Alignment.centerLeft,
+                                child: FutureBuilder<dynamic>(
+                                  future: _isFavouriteUser(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      if (snapshot.data.toString() == 'true') {
+                                        return Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: TextButton(
+                                                  onPressed: !_isAddOrRemoveFU
+                                                      ? () {
+                                                          _removeFavouriteUser();
+                                                          setState(() {
+                                                            _isSectionVisible =
+                                                                false;
+                                                          });
+                                                        }
+                                                      : null,
+                                                  style: TextButton.styleFrom(
+                                                    foregroundColor:
+                                                        Colors.black,
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                  ),
+                                                  child: const Text(
+                                                      'Remove Favourite User'),
+                                                ),
+                                              ),
+                                            ),
+                                            ShaderMask(
+                                              shaderCallback: (Rect bounds) {
+                                                return const LinearGradient(
+                                                  colors: [
+                                                    Colors.yellow,
+                                                    Colors.cyan
+                                                  ],
+                                                  begin: Alignment.centerLeft,
+                                                  end: Alignment.centerRight,
+                                                ).createShader(bounds);
+                                              },
+                                              child: const Icon(
+                                                Icons.star_rounded,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          ],
+                                        );
+                                      }
+                                      return Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: TextButton(
+                                                onPressed: !_isAddOrRemoveFU
+                                                    ? () {
+                                                        _addFavouriteUser();
+                                                        setState(() {
+                                                          _isSectionVisible =
+                                                              false;
+                                                        });
+                                                      }
+                                                    : null,
+                                                style: TextButton.styleFrom(
+                                                  foregroundColor: Colors.black,
+                                                  backgroundColor: Colors.white,
+                                                ),
+                                                child: const Text(
+                                                    'Add Favourite User'),
+                                              ),
+                                            ),
+                                          ),
+                                          const Icon(
+                                              Icons.star_outline_rounded),
+                                        ],
+                                      );
+                                    }
+                                    return Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: TextButton(
+                                              onPressed: !_isAddOrRemoveFU
+                                                  ? () {
+                                                      _addFavouriteUser();
+                                                      setState(() {
+                                                        _isSectionVisible =
+                                                            false;
+                                                      });
+                                                    }
+                                                  : null,
+                                              style: TextButton.styleFrom(
+                                                foregroundColor: Colors.black,
+                                                backgroundColor: Colors.white,
+                                              ),
+                                              child: const Text(
+                                                  'Add Favourite User'),
+                                            ),
+                                          ),
+                                        ),
+                                        const Icon(Icons.star_outline_rounded),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                              Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                ),
+                                padding: const EdgeInsets.fromLTRB(
+                                    20.0, 4.0, 20.0, 4.0),
+                                width: double.infinity,
+                                alignment: Alignment.centerLeft,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: TextButton(
+                                          onPressed: !_isFollwingOrUnfollowing
+                                              ? () {
+                                                  _unfollowUser();
+                                                  setState(() {
+                                                    _isSectionVisible = false;
+                                                  });
+                                                }
+                                              : null,
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: Colors.black,
+                                            backgroundColor: Colors.white,
+                                          ),
+                                          child: const Text('Unfollow'),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Container()
               ],
             ),
           ),

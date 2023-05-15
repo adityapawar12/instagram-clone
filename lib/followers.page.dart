@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/othersProfile.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -154,9 +152,18 @@ class _FollowersPageState extends State<FollowersPage> {
                                 user['profile_image_url'],
                               ),
                             )
-                          : const CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                  'https://simg.nicepng.com/png/small/128-1280406_view-user-icon-png-user-circle-icon-png.png'),
+                          : ClipOval(
+                              child: Container(
+                                height: 50,
+                                width: 50,
+                                color: const Color.fromARGB(255, 240, 240, 240),
+                                child: const SizedBox(
+                                  child: Icon(
+                                    Icons.person,
+                                    size: 40,
+                                  ),
+                                ),
+                              ),
                             ),
                       title: Text(
                         user['name'],
