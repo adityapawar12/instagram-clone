@@ -1,3 +1,5 @@
+import 'package:instagram_clone/editProfile.page.dart';
+
 import 'utils/clickable_text_utils.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
@@ -314,6 +316,36 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 )
               ],
+            ),
+            Container(
+              height: 16.0,
+            ),
+            Container(
+              padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+              width: double.infinity,
+              child: TextButton(
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(45.0),
+                      ),
+                    ),
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                      const Color.fromARGB(255, 240, 240, 240),
+                    ),
+                    foregroundColor: MaterialStateProperty.all<Color>(
+                      Colors.black,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const EditProfilePage(),
+                      ),
+                    );
+                  },
+                  child: const Text('Edit Profile')),
             ),
             Container(
               height: 16.0,
