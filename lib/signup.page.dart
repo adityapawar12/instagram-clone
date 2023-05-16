@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:instagram_clone/container.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -17,6 +18,9 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  // SECURE STORAGE TO SAVE CREDENTIALS
+  final _storage = const FlutterSecureStorage();
+
   // FORM
   final _formKey = GlobalKey<FormState>();
 
@@ -50,6 +54,9 @@ class _SignUpPageState extends State<SignUpPage> {
 
   // SIGN IN STATE
   bool _isUserSignedIn = false;
+
+  // REMEMBER ME
+  bool _isRememberMeChecked = false;
 
   // ON CAMERA SELECTED
   void onNewCameraSelected(CameraDescription cameraDescription) async {
@@ -305,6 +312,14 @@ class _SignUpPageState extends State<SignUpPage> {
             await prefs.setString(
                 'profileImageUrl', newUser[0]['profile_image_url']);
           }
+
+          if (_isRememberMeChecked) {
+            await _storage.delete(key: 'userName');
+            await _storage.delete(key: 'password');
+            await _storage.write(key: 'userName', value: email);
+            await _storage.write(key: 'password', value: password);
+          }
+
           setState(() {
             _isSignningUp = false;
           });
@@ -397,6 +412,13 @@ class _SignUpPageState extends State<SignUpPage> {
                       await prefs.setString(
                           'profileImageUrl', newUser[0]['profile_image_url']);
                     }
+                    if (_isRememberMeChecked) {
+                      await _storage.delete(key: 'userName');
+                      await _storage.delete(key: 'password');
+                      await _storage.write(key: 'userName', value: email);
+                      await _storage.write(key: 'password', value: password);
+                    }
+
                     setState(() {
                       _isSignningUp = false;
                     });
@@ -1008,6 +1030,34 @@ one lowercase letter, and one digit.''';
                                   ),
                                   cursorColor: Colors
                                       .black, // Set the cursor color to black
+                                ),
+                                const SizedBox(
+                                  height: 16.0,
+                                ),
+                                Row(
+                                  children: [
+                                    Container(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            10.0, 0, 0, 0),
+                                        child: const Text('Remember Me')),
+                                    Expanded(
+                                      child: Container(),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          0, 0, 10.0, 0),
+                                      height: 20,
+                                      child: Checkbox(
+                                        checkColor: Colors.white,
+                                        value: _isRememberMeChecked,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            _isRememberMeChecked = value!;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(
                                   height: 16.0,

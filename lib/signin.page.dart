@@ -3,6 +3,7 @@ import 'package:instagram_clone/signup.page.dart';
 import 'package:instagram_clone/Container.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({Key? key}) : super(key: key);
@@ -12,6 +13,9 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
+  // SECURE STORAGE TO SAVE CREDENTIALS
+  final _storage = const FlutterSecureStorage();
+
   // FORM
   final _formKey = GlobalKey<FormState>();
 
@@ -24,6 +28,9 @@ class _SignInPageState extends State<SignInPage> {
 
   // SIGN IN STATE
   bool _isUserSignedIn = false;
+
+  // REMEMBER ME
+  bool _isRememberMeChecked = false;
 
   // SIGN IN
   void _signIn(BuildContext context) async {
@@ -116,6 +123,14 @@ class _SignInPageState extends State<SignInPage> {
           await prefs.setString(
               'profileImageUrl', future[0]['profile_image_url']);
         }
+
+        if (_isRememberMeChecked) {
+          await _storage.delete(key: 'userName');
+          await _storage.delete(key: 'password');
+          await _storage.write(key: 'userName', value: emailOrPhone);
+          await _storage.write(key: 'password', value: password);
+        }
+
         setState(() {
           _isSignningIn = false;
         });
@@ -209,9 +224,21 @@ class _SignInPageState extends State<SignInPage> {
     }
   }
 
+  // GET STORED CREDENTAILS FROM SECURE STORAGE
+  Future<void> _getRememberedCredentials() async {
+    _emailOrPhoneController.text = await _storage.read(key: 'userName') ?? "";
+    _passwordController.text = await _storage.read(key: 'password') ?? "";
+
+    if (_emailOrPhoneController.text.isNotEmpty &&
+        _passwordController.text.isNotEmpty) {
+      _isRememberMeChecked = true;
+    }
+  }
+
   // LIFECYCLE METHODS
   @override
   void initState() {
+    _getRememberedCredentials();
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkUserSignedIn(context);
@@ -329,6 +356,32 @@ class _SignInPageState extends State<SignInPage> {
                       ),
                       cursorColor:
                           Colors.black, // Set the cursor color to black
+                    ),
+                    const SizedBox(
+                      height: 16.0,
+                    ),
+                    Row(
+                      children: [
+                        Container(
+                            padding: const EdgeInsets.fromLTRB(10.0, 0, 0, 0),
+                            child: const Text('Remember Me')),
+                        Expanded(
+                          child: Container(),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 10.0, 0),
+                          height: 20,
+                          child: Checkbox(
+                            checkColor: Colors.white,
+                            value: _isRememberMeChecked,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                _isRememberMeChecked = value!;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(
                       height: 16.0,
