@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/comment.page.dart';
 import 'utils/clickable_text_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,16 +20,16 @@ class _CommentsPageState extends State<CommentsPage> {
   Timer? _timer;
   late dynamic _selectedComment;
   late bool _isReplying = false;
-  // late bool _showReplies = false;
 
   // FORM
   final _commentController = TextEditingController();
 
-  @override
-  void initState() {
-    _getPostId();
-    _waitSevenSeconds();
-    super.initState();
+  void openTextField(bool isReply, dynamic comment, String replyText) {
+    setState(() {
+      _isReplying = isReply;
+      _selectedComment = comment;
+      _commentController.text = replyText;
+    });
   }
 
   void _getPostId() async {
@@ -95,59 +96,7 @@ class _CommentsPageState extends State<CommentsPage> {
     }
   }
 
-  // LIKE COMMENT
-  _likeComment(comment) async {
-    final checkLike = await Supabase.instance.client
-        .from('comment_likes')
-        .select()
-        .eq('user_id', _userId)
-        .eq('comment_id', comment['id']);
-    if (checkLike.length > 0) {
-      await Supabase.instance.client.from('comment_likes').delete().match(
-        {
-          'user_id': _userId,
-          'comment_id': comment['id'],
-        },
-      );
-      setState(() {
-        _getComments();
-      });
-    } else if (checkLike.length < 1) {
-      await Supabase.instance.client.from('comment_likes').insert(
-        {
-          'user_id': _userId,
-          'comment_id': comment['id'],
-        },
-      );
-      setState(() {
-        _getComments();
-      });
-    }
-  }
-
-  // CHECK IF COMMENT IS LIKED OR NOT
-  Future<bool> _isCommentLiked(comment) async {
-    final checkLike = await Supabase.instance.client
-        .from('comment_likes')
-        .select()
-        .eq('user_id', _userId)
-        .eq('comment_id', comment['id']);
-    if (checkLike.length > 0) {
-      return true;
-    }
-    return false;
-  }
-
-  // GET COMMENTS
-  _getCommentsLikeCount(comment) {
-    final future = Supabase.instance.client
-        .from('comment_likes')
-        .select('id')
-        .eq('comment_id', comment['id']);
-    return future;
-  }
-
-  // REPLY ON COMMENT
+  // WAIT SEVEN SECONDS
   void _waitSevenSeconds() {
     _timer = Timer(const Duration(seconds: 7), () {
       if (mounted) {
@@ -158,12 +107,6 @@ class _CommentsPageState extends State<CommentsPage> {
         });
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
   }
 
   // REPLY ON COMMENT
@@ -185,25 +128,20 @@ class _CommentsPageState extends State<CommentsPage> {
     }
   }
 
-  // GET REPLIES
-  // _getReplies(comment) {
-  //   final future = Supabase.instance.client
-  //       .from('comments')
-  //       .select<List<Map<String, dynamic>>>('''
-  //         *,
-  //   users!comments_user_id_fkey (
-  //           id,
-  //           name,
-  //           user_tag_id,
-  //           profile_image_url
-  //         )
-  //       ''')
-  //       .eq('post_id', _postId)
-  //       .eq('is_reply', true)
-  //       .eq('comment_id', comment['id'])
-  //       .order('id');
-  //   return future;
-  // }
+  // LIFECYCLE METHODS
+  @override
+  void initState() {
+    _getPostId();
+    _waitSevenSeconds();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+  // LIFECYCLE METHODS
 
   @override
   Widget build(BuildContext context) {
@@ -578,212 +516,9 @@ class _CommentsPageState extends State<CommentsPage> {
                     itemCount: comments.length,
                     itemBuilder: ((context, index) {
                       final comment = comments[index];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 16,
-                                ),
-                                comment['users']['profile_image_url'] != null &&
-                                        comment['users']['profile_image_url']
-                                                .length >
-                                            0
-                                    ? ClipOval(
-                                        child: Container(
-                                          height: 40,
-                                          width: 40,
-                                          color: const Color.fromARGB(
-                                              255, 240, 240, 240),
-                                          child: SizedBox(
-                                              child: Image.network(
-                                            comment['users']
-                                                ['profile_image_url'],
-                                            height: 40,
-                                            width: 40,
-                                          )),
-                                        ),
-                                      )
-                                    : ClipOval(
-                                        child: Container(
-                                          height: 40,
-                                          width: 40,
-                                          color: const Color.fromARGB(
-                                              255, 240, 240, 240),
-                                          child: const SizedBox(
-                                            child: Icon(
-                                              Icons.person,
-                                              size: 30,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                Container(
-                                  width: 16,
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      comment['users']['name'] != null &&
-                                              comment['users']['name'].length >
-                                                  0
-                                          ? Container(
-                                              margin: const EdgeInsets.fromLTRB(
-                                                0,
-                                                10,
-                                                0,
-                                                0,
-                                              ),
-                                              padding: const EdgeInsets.all(
-                                                0,
-                                              ),
-                                              child: Text(
-                                                comment['users']['name'],
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            )
-                                          : const Text(''),
-                                      comment['comment'] != null &&
-                                              comment['comment'].length > 0
-                                          ? Container(
-                                              margin: const EdgeInsets.fromLTRB(
-                                                0,
-                                                10,
-                                                0,
-                                                0,
-                                              ),
-                                              padding: const EdgeInsets.all(
-                                                0,
-                                              ),
-                                              child: RichText(
-                                                text: buildClickableTextSpan(
-                                                    comment['comment'],
-                                                    _userId,
-                                                    context),
-                                              ),
-                                            )
-                                          : const Text(''),
-                                      TextButton(
-                                        style: ButtonStyle(
-                                          padding: MaterialStateProperty.all(
-                                            EdgeInsets.zero,
-                                          ),
-                                          alignment: Alignment.centerLeft,
-                                        ),
-                                        onPressed: () {
-                                          _isReplying = true;
-                                          _selectedComment = comment;
-                                          _commentController.text =
-                                              "@${comment['users']['user_tag_id']} ";
-                                        },
-                                        child: const Text(
-                                          'Reply',
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w300,
-                                          ),
-                                        ),
-                                      ),
-                                      TextButton(
-                                        style: ButtonStyle(
-                                          padding: MaterialStateProperty.all(
-                                            EdgeInsets.zero,
-                                          ),
-                                          alignment: Alignment.centerLeft,
-                                        ),
-                                        onPressed: () {
-                                          // _showReplies = true;
-                                        },
-                                        child: const Text(
-                                          '---- See all replies',
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w300,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  width: 16,
-                                ),
-                                SizedBox(
-                                  width: 50,
-                                  height: 60,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        width: 50,
-                                        height: 40,
-                                        child: FutureBuilder<dynamic>(
-                                          future: _isCommentLiked(comment),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.hasData) {
-                                              return IconButton(
-                                                icon: snapshot.data || false
-                                                    ? const Icon(
-                                                        Icons.favorite,
-                                                        color: Colors.red,
-                                                        size: 20,
-                                                      )
-                                                    : const Icon(
-                                                        Icons.favorite_border,
-                                                        color: Color.fromARGB(
-                                                            255, 240, 240, 240),
-                                                        size: 20,
-                                                      ),
-                                                onPressed: () {
-                                                  _likeComment(comment);
-                                                },
-                                              );
-                                            } else {
-                                              return const Icon(
-                                                Icons.favorite_border,
-                                                size: 20,
-                                              );
-                                            }
-                                          },
-                                        ),
-                                      ),
-                                      Container(
-                                        width: 50,
-                                        height: 20,
-                                        alignment: Alignment.center,
-                                        child: FutureBuilder<dynamic>(
-                                          future:
-                                              _getCommentsLikeCount(comment),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.hasData) {
-                                              return Text(
-                                                snapshot.data.length.toString(),
-                                              );
-                                            } else {
-                                              return const Text('0');
-                                            }
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                      return CommentPage(
+                        comment: comment,
+                        onReplyPressed: openTextField,
                       );
                     }),
                   ),
