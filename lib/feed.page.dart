@@ -1,6 +1,5 @@
 import 'comments.page.dart';
 import 'package:chewie/chewie.dart';
-import 'utils/post_click_utils.dart';
 import 'package:flutter/material.dart';
 import 'utils/clickable_text_utils.dart';
 import 'package:video_player/video_player.dart';

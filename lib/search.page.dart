@@ -1,7 +1,11 @@
+import 'dart:developer';
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:instagram_clone/othersProfile.page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -37,6 +41,27 @@ class _SearchPageState extends State<SearchPage> {
         .or('name.ilike.%$searchText%, user_tag_id.ilike.%$searchText%')
         .neq('id', _userId)
         .order('id');
+    return future;
+  }
+
+  // GET POSTS
+  _getPosts() {
+    var future = Supabase.instance.client
+        .from('posts')
+        .select<List<Map<String, dynamic>>>('''
+    *,
+    users (
+      id,
+      name,
+      profile_image_url
+    ),
+    likes (
+      id
+    ),
+    saves (
+      id
+    )
+  ''').order('id');
     return future;
   }
 
@@ -194,7 +219,84 @@ class _SearchPageState extends State<SearchPage> {
                     );
                   },
                 )
-              : Container()
+              : FutureBuilder<dynamic>(
+                  future: _getPosts(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Container();
+                    }
+
+                    log(snapshot.data.toString());
+                    return Expanded(
+                      child: MasonryGridView.count(
+                        // itemCount: _items.length,
+                        itemCount: snapshot.data.length,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 0, horizontal: 0),
+                        // the number of columns
+                        crossAxisCount: 3,
+                        // vertical gap between two items
+                        mainAxisSpacing: 4,
+                        // horizontal gap between two items
+                        crossAxisSpacing: 4,
+                        itemBuilder: (context, index) {
+                          // display each item with a card
+                          final post = snapshot.data[index];
+
+                          return SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                if (post['post_type'] == 'image')
+                                  SizedBox(
+                                    width: 129,
+                                    height: 129,
+                                    child: FittedBox(
+                                      fit: BoxFit.contain,
+                                      child: Image.network(
+                                        post['post_url'],
+                                        height: 129,
+                                      ),
+                                    ),
+                                  )
+                                else if (post['post_type'] == 'video')
+                                  SizedBox(
+                                    width: 129,
+                                    height: 190,
+                                    child: FittedBox(
+                                      fit: BoxFit.fitWidth,
+                                      child: Chewie(
+                                        controller: ChewieController(
+                                          videoPlayerController:
+                                              VideoPlayerController.network(
+                                            post['post_url'],
+                                          ),
+                                          autoPlay: true,
+                                          aspectRatio: 16 / 9,
+                                          looping: false,
+                                          allowFullScreen: true,
+                                          allowMuting: true,
+                                          showControls: false,
+                                          errorBuilder:
+                                              (context, errorMessage) {
+                                            return Center(
+                                              child: Text(
+                                                errorMessage,
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  }),
         ],
       ),
     );
