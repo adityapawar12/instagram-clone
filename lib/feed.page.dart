@@ -1,10 +1,11 @@
+import 'comments.page.dart';
 import 'package:chewie/chewie.dart';
+import 'utils/post_click_utils.dart';
 import 'package:flutter/material.dart';
 import 'utils/clickable_text_utils.dart';
 import 'package:video_player/video_player.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'comments.page.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({Key? key}) : super(key: key);
@@ -177,7 +178,13 @@ class _FeedPageState extends State<FeedPage> {
             itemCount: posts.length,
             itemBuilder: ((context, index) {
               final post = posts[index];
-              return Column(
+              return
+                  // InkWell(
+                  //   onTap: () {
+                  //     postClick(post['id'], context);
+                  //   },
+                  //   child:
+                  Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Container(
@@ -395,6 +402,7 @@ class _FeedPageState extends State<FeedPage> {
                     ),
                   ),
                 ],
+                // ),
               );
             }),
           ),
