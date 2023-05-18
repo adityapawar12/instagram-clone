@@ -232,8 +232,8 @@ class _CommentsPageState extends State<CommentsPage> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  post[0]['caption'] != null &&
-                                          post[0]['caption'].length > 0
+                                  post[0]['users']['name'] != null &&
+                                          post[0]['users']['name'].length > 0
                                       ? Container(
                                           margin: const EdgeInsets.fromLTRB(
                                             0,
@@ -452,8 +452,8 @@ class _CommentsPageState extends State<CommentsPage> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                post[0]['caption'] != null &&
-                                        post[0]['caption'].length > 0
+                                post[0]['users']['name'] != null &&
+                                        post[0]['users']['name'].length > 0
                                     ? Container(
                                         margin: const EdgeInsets.fromLTRB(
                                           0,

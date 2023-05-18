@@ -236,73 +236,6 @@ class _CommentPageState extends State<CommentPage> {
                             ),
                           ),
                         ),
-                        FutureBuilder<List<Map<String, dynamic>>>(
-                            future: _getReplies(widget.comment),
-                            builder: (context, snapshot) {
-                              if (!snapshot.hasData) {
-                                return const SizedBox(
-                                  width: 0,
-                                  height: 0,
-                                );
-                              }
-
-                              var replies = snapshot.data!;
-                              log(replies.toString());
-                              return Column(
-                                children: [
-                                  _showReplies
-                                      ? SingleChildScrollView(
-                                          child: ListView.builder(
-                                            scrollDirection: Axis.vertical,
-                                            shrinkWrap: true,
-                                            itemCount: replies.length,
-                                            itemBuilder: ((context, index) {
-                                              final reply = replies[index];
-                                              return ReplyPage(
-                                                  reply: reply,
-                                                  onReplyPressed:
-                                                      openTextField);
-                                            }),
-                                          ),
-                                        )
-                                      : const SizedBox(
-                                          height: 0,
-                                          width: 0,
-                                        ),
-                                  SizedBox(
-                                    child: replies.isNotEmpty
-                                        ? SizedBox(
-                                            height: 20,
-                                            child: TextButton(
-                                              style: ButtonStyle(
-                                                padding:
-                                                    MaterialStateProperty.all(
-                                                  EdgeInsets.zero,
-                                                ),
-                                                alignment: Alignment.centerLeft,
-                                              ),
-                                              onPressed: () {
-                                                setState(() {
-                                                  _showReplies = !_showReplies;
-                                                });
-                                              },
-                                              child: Text(
-                                                _showReplies
-                                                    ? 'Hide replies'
-                                                    : 'View ${replies.length} more ${replies.length < 2 ? "reply" : "replies"}',
-                                                textAlign: TextAlign.start,
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w300,
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        : const SizedBox(),
-                                  ),
-                                ],
-                              );
-                            })
                       ],
                     ),
                   ),
@@ -371,6 +304,80 @@ class _CommentPageState extends State<CommentPage> {
                   ),
                 ],
               ),
+              Container(
+                child: FutureBuilder<List<Map<String, dynamic>>>(
+                  future: _getReplies(widget.comment),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const SizedBox(
+                        width: 0,
+                        height: 0,
+                      );
+                    }
+                    var replies = snapshot.data!;
+                    log(replies.toString());
+                    return Column(
+                      children: [
+                        _showReplies
+                            ? SingleChildScrollView(
+                                child: ListView.builder(
+                                  scrollDirection: Axis.vertical,
+                                  shrinkWrap: true,
+                                  itemCount: replies.length,
+                                  itemBuilder: ((context, index) {
+                                    final reply = replies[index];
+                                    return Container(
+                                      padding: _showReplies
+                                          ? const EdgeInsets.fromLTRB(
+                                              50.0, 0, 0, 0)
+                                          : const EdgeInsets.all(0),
+                                      child: ReplyPage(
+                                          reply: reply,
+                                          onReplyPressed: openTextField),
+                                    );
+                                  }),
+                                ),
+                              )
+                            : const SizedBox(
+                                height: 0,
+                                width: 0,
+                              ),
+                        replies.isNotEmpty
+                            ? Container(
+                                padding:
+                                    const EdgeInsets.fromLTRB(70.0, 0, 0, 0),
+                                alignment: Alignment.centerLeft,
+                                height: 20,
+                                child: TextButton(
+                                  style: ButtonStyle(
+                                    padding: MaterialStateProperty.all(
+                                      EdgeInsets.zero,
+                                    ),
+                                    alignment: Alignment.centerLeft,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _showReplies = !_showReplies;
+                                    });
+                                  },
+                                  child: Text(
+                                    _showReplies
+                                        ? 'Hide replies'
+                                        : 'View ${replies.length} more ${replies.length < 2 ? "reply" : "replies"}',
+                                    textAlign: TextAlign.start,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox(),
+                      ],
+                    );
+                  },
+                ),
+              )
             ],
           ),
         ),
