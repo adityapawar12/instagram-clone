@@ -23,6 +23,9 @@ class _SearchPageState extends State<SearchPage> {
   // OTHER
   late bool _showSearchResult = false;
 
+  // REFRESHING FEED
+  late bool _isRefreshing = false;
+
   // GET USER INFO FROM SESSION
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
@@ -62,6 +65,20 @@ class _SearchPageState extends State<SearchPage> {
     )
   ''').order('id');
     return future;
+  }
+
+  // REFRESH DATA
+  Future<void> _refreshData() async {
+    setState(() {
+      _isRefreshing = true;
+    });
+    if (!_isRefreshing) {
+      await Future.delayed(const Duration(seconds: 2));
+      _getPosts();
+      setState(() {
+        _isRefreshing = false;
+      });
+    }
   }
 
   // LIFECYCLE METHODS
@@ -226,72 +243,76 @@ class _SearchPageState extends State<SearchPage> {
                     }
 
                     return Expanded(
-                      child: MasonryGridView.count(
-                        // itemCount: _items.length,
-                        itemCount: snapshot.data.length,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 0, horizontal: 0),
-                        // the number of columns
-                        crossAxisCount: 3,
-                        // vertical gap between two items
-                        mainAxisSpacing: 4,
-                        // horizontal gap between two items
-                        crossAxisSpacing: 4,
-                        itemBuilder: (context, index) {
-                          // display each item with a card
-                          final post = snapshot.data[index];
+                      child: RefreshIndicator(
+                        onRefresh: _refreshData,
+                        child: MasonryGridView.count(
+                          // itemCount: _items.length,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: snapshot.data.length,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 0, horizontal: 0),
+                          // the number of columns
+                          crossAxisCount: 3,
+                          // vertical gap between two items
+                          mainAxisSpacing: 4,
+                          // horizontal gap between two items
+                          crossAxisSpacing: 4,
+                          itemBuilder: (context, index) {
+                            // display each item with a card
+                            final post = snapshot.data[index];
 
-                          return SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                if (post['post_type'] == 'image')
-                                  SizedBox(
-                                    width: 129,
-                                    height: 129,
-                                    child: FittedBox(
-                                      fit: BoxFit.contain,
-                                      child: Image.network(
-                                        post['post_url'],
-                                        height: 129,
+                            return SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  if (post['post_type'] == 'image')
+                                    SizedBox(
+                                      width: 129,
+                                      height: 129,
+                                      child: FittedBox(
+                                        fit: BoxFit.contain,
+                                        child: Image.network(
+                                          post['post_url'],
+                                          height: 129,
+                                        ),
                                       ),
-                                    ),
-                                  )
-                                else if (post['post_type'] == 'video')
-                                  SizedBox(
-                                    width: 129,
-                                    height: 190,
-                                    child: FittedBox(
-                                      fit: BoxFit.fitWidth,
-                                      child: Chewie(
-                                        controller: ChewieController(
-                                          videoPlayerController:
-                                              VideoPlayerController.network(
-                                            post['post_url'],
+                                    )
+                                  else if (post['post_type'] == 'video')
+                                    SizedBox(
+                                      width: 129,
+                                      height: 190,
+                                      child: FittedBox(
+                                        fit: BoxFit.fitWidth,
+                                        child: Chewie(
+                                          controller: ChewieController(
+                                            videoPlayerController:
+                                                VideoPlayerController.network(
+                                              post['post_url'],
+                                            ),
+                                            autoPlay: true,
+                                            aspectRatio: 16 / 9,
+                                            looping: false,
+                                            allowFullScreen: true,
+                                            allowMuting: true,
+                                            showControls: false,
+                                            errorBuilder:
+                                                (context, errorMessage) {
+                                              return Center(
+                                                child: Text(
+                                                  errorMessage,
+                                                  style: const TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                              );
+                                            },
                                           ),
-                                          autoPlay: true,
-                                          aspectRatio: 16 / 9,
-                                          looping: false,
-                                          allowFullScreen: true,
-                                          allowMuting: true,
-                                          showControls: false,
-                                          errorBuilder:
-                                              (context, errorMessage) {
-                                            return Center(
-                                              child: Text(
-                                                errorMessage,
-                                                style: const TextStyle(
-                                                    color: Colors.white),
-                                              ),
-                                            );
-                                          },
                                         ),
                                       ),
                                     ),
-                                  ),
-                              ],
-                            ),
-                          );
-                        },
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     );
                   }),

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'comments.page.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,9 @@ class FeedPage extends StatefulWidget {
 class _FeedPageState extends State<FeedPage> {
   // USER
   static int _userId = 0;
+
+  // REFRESHING FEED
+  late bool _isRefreshing = false;
 
   // GET USER INFO FROM SESSION
   Future<void> _loadPreferences() async {
@@ -134,6 +139,20 @@ class _FeedPageState extends State<FeedPage> {
     return false;
   }
 
+  // REFRESH DATA
+  Future<void> _refreshData() async {
+    setState(() {
+      _isRefreshing = true;
+    });
+    if (!_isRefreshing) {
+      await Future.delayed(const Duration(seconds: 2));
+      _getPosts();
+      setState(() {
+        _isRefreshing = false;
+      });
+    }
+  }
+
   // LIFECYCLE METHODS
   @override
   void initState() {
@@ -157,6 +176,8 @@ class _FeedPageState extends State<FeedPage> {
           );
         }
         final posts = snapshot.data!;
+        posts.shuffle();
+        log(posts.toString());
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.white,
@@ -175,272 +196,278 @@ class _FeedPageState extends State<FeedPage> {
               ),
             ),
           ),
-          body: ListView.builder(
-            itemCount: posts.length,
-            itemBuilder: ((context, index) {
-              final post = posts[index];
-              return
-                  // InkWell(
-                  //   onTap: () {
-                  //     postClick(post['id'], context);
-                  //   },
-                  //   child:
-                  Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                    ),
-                    child: ListTile(
-                      tileColor: Colors.white,
-                      leading: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) {
-                              if (post['users']['id'] == _userId) {
-                                return const ContainerPage(
-                                  selectedPageIndex: 3,
-                                );
-                              } else {
-                                return OthersProfile(
-                                    userId: post['users']['id']);
-                              }
-                            }),
-                          );
-                        },
-                        child: post['users']['profile_image_url'] != null &&
-                                post['users']['profile_image_url'].length > 0
-                            ? CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                  post['users']['profile_image_url'],
-                                ),
-                              )
-                            : ClipOval(
-                                child: Container(
-                                  height: 40,
-                                  width: 40,
-                                  color:
-                                      const Color.fromARGB(255, 240, 240, 240),
-                                  child: const SizedBox(
-                                    child: Icon(
-                                      Icons.person,
-                                      size: 30,
-                                    ),
+          body: RefreshIndicator(
+            onRefresh: _refreshData,
+            child: ListView.builder(
+              itemCount: posts.length,
+              physics: const BouncingScrollPhysics(),
+              itemBuilder: ((context, index) {
+                final post = posts[index];
+                return
+                    // InkWell(
+                    //   onTap: () {
+                    //     postClick(post['id'], context);
+                    //   },
+                    //   child:
+                    Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                      ),
+                      child: ListTile(
+                        tileColor: Colors.white,
+                        leading: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) {
+                                if (post['users']['id'] == _userId) {
+                                  return const ContainerPage(
+                                    selectedPageIndex: 3,
+                                  );
+                                } else {
+                                  return OthersProfile(
+                                      userId: post['users']['id']);
+                                }
+                              }),
+                            );
+                          },
+                          child: post['users']['profile_image_url'] != null &&
+                                  post['users']['profile_image_url'].length > 0
+                              ? CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                    post['users']['profile_image_url'],
                                   ),
-                                ),
-                              ),
-                      ),
-                      title: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) {
-                              if (post['users']['id'] == _userId) {
-                                return const ContainerPage(
-                                  selectedPageIndex: 3,
-                                );
-                              } else {
-                                return OthersProfile(
-                                    userId: post['users']['id']);
-                              }
-                            }),
-                          );
-                        },
-                        child: Text(
-                          post['users']['name'],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      subtitle: Text(
-                        post['location'],
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (post['post_type'] == 'image')
-                    Container(
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          top: BorderSide(
-                            width: 0.5,
-                            color: Color.fromARGB(255, 204, 204, 204),
-                          ),
-                        ),
-                        color: Colors.white,
-                      ),
-                      height: 400,
-                      width: double.infinity,
-                      child: FittedBox(
-                          fit: BoxFit.contain,
-                          child: Image.network(post['post_url'])),
-                    )
-                  else if (post['post_type'] == 'video')
-                    Container(
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          top: BorderSide(
-                            width: 0.5,
-                            color: Color.fromARGB(255, 204, 204, 204),
-                          ),
-                        ),
-                        color: Colors.white,
-                      ),
-                      height: 600,
-                      width: double.infinity,
-                      child: FittedBox(
-                        fit: BoxFit.fitWidth,
-                        child: Chewie(
-                          controller: ChewieController(
-                            videoPlayerController:
-                                VideoPlayerController.network(
-                              post['post_url'],
-                            ),
-                            aspectRatio: 16 / 9,
-                            autoPlay: true,
-                            looping: false,
-                            allowMuting: true,
-                            showControls: false,
-                            errorBuilder: (context, errorMessage) {
-                              return Center(
-                                child: Text(
-                                  errorMessage,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                FutureBuilder<dynamic>(
-                                    future: _isPostLiked(post),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasData) {
-                                        return IconButton(
-                                          icon: snapshot.data || false
-                                              ? const Icon(Icons.favorite,
-                                                  color: Colors.red)
-                                              : const Icon(
-                                                  Icons.favorite_border),
-                                          onPressed: () {
-                                            _likePost(post);
-                                          },
-                                        );
-                                      } else {
-                                        return const Icon(
-                                            Icons.favorite_border);
-                                      }
-                                    }),
-                                const SizedBox(width: 4.0),
-                                IconButton(
-                                  icon: const Icon(Icons.mode_comment_outlined),
-                                  onPressed: () async {
-                                    final prefs =
-                                        await SharedPreferences.getInstance();
-                                    prefs.setInt('commentPostId', post['id']);
-                                    // ignore: use_build_context_synchronously
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const CommentsPage(),
+                                )
+                              : ClipOval(
+                                  child: Container(
+                                    height: 40,
+                                    width: 40,
+                                    color: const Color.fromARGB(
+                                        255, 240, 240, 240),
+                                    child: const SizedBox(
+                                      child: Icon(
+                                        Icons.person,
+                                        size: 30,
                                       ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                            FutureBuilder<dynamic>(
-                                future: _isPostSaved(post),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    return IconButton(
-                                      icon: snapshot.data || false
-                                          ? const Icon(Icons.bookmark,
-                                              color: Colors.black)
-                                          : const Icon(Icons.bookmark_border),
-                                      onPressed: () {
-                                        _savePost(post);
-                                      },
-                                    );
-                                  } else {
-                                    return const Icon(Icons.bookmark_border);
-                                  }
-                                }),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 14.0,
-                              ),
-                              child: Text(
-                                "${post['likes'].length.toString()} Likes",
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 14.0,
-                              ),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "${post['users']['name']}",
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  const SizedBox(
-                                    width: 5.0,
+                                ),
+                        ),
+                        title: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) {
+                                if (post['users']['id'] == _userId) {
+                                  return const ContainerPage(
+                                    selectedPageIndex: 3,
+                                  );
+                                } else {
+                                  return OthersProfile(
+                                      userId: post['users']['id']);
+                                }
+                              }),
+                            );
+                          },
+                          child: Text(
+                            post['users']['name'],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        subtitle: Text(
+                          post['location'],
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (post['post_type'] == 'image')
+                      Container(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              width: 0.5,
+                              color: Color.fromARGB(255, 204, 204, 204),
+                            ),
+                          ),
+                          color: Colors.white,
+                        ),
+                        height: 400,
+                        width: double.infinity,
+                        child: FittedBox(
+                            fit: BoxFit.contain,
+                            child: Image.network(post['post_url'])),
+                      )
+                    else if (post['post_type'] == 'video')
+                      Container(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              width: 0.5,
+                              color: Color.fromARGB(255, 204, 204, 204),
+                            ),
+                          ),
+                          color: Colors.white,
+                        ),
+                        height: 600,
+                        width: double.infinity,
+                        child: FittedBox(
+                          fit: BoxFit.fitWidth,
+                          child: Chewie(
+                            controller: ChewieController(
+                              videoPlayerController:
+                                  VideoPlayerController.network(
+                                post['post_url'],
+                              ),
+                              aspectRatio: 16 / 9,
+                              autoPlay: true,
+                              looping: false,
+                              allowMuting: true,
+                              showControls: false,
+                              errorBuilder: (context, errorMessage) {
+                                return Center(
+                                  child: Text(
+                                    errorMessage,
+                                    style: const TextStyle(color: Colors.white),
                                   ),
-                                  RichText(
-                                    text: buildClickableTextSpan(
-                                        post['caption'], _userId, context),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  FutureBuilder<dynamic>(
+                                      future: _isPostLiked(post),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          return IconButton(
+                                            icon: snapshot.data || false
+                                                ? const Icon(Icons.favorite,
+                                                    color: Colors.red)
+                                                : const Icon(
+                                                    Icons.favorite_border),
+                                            onPressed: () {
+                                              _likePost(post);
+                                            },
+                                          );
+                                        } else {
+                                          return const Icon(
+                                              Icons.favorite_border);
+                                        }
+                                      }),
+                                  const SizedBox(width: 4.0),
+                                  IconButton(
+                                    icon:
+                                        const Icon(Icons.mode_comment_outlined),
+                                    onPressed: () async {
+                                      final prefs =
+                                          await SharedPreferences.getInstance();
+                                      prefs.setInt('commentPostId', post['id']);
+                                      // ignore: use_build_context_synchronously
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const CommentsPage(),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              FutureBuilder<dynamic>(
+                                  future: _isPostSaved(post),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      return IconButton(
+                                        icon: snapshot.data || false
+                                            ? const Icon(Icons.bookmark,
+                                                color: Colors.black)
+                                            : const Icon(Icons.bookmark_border),
+                                        onPressed: () {
+                                          _savePost(post);
+                                        },
+                                      );
+                                    } else {
+                                      return const Icon(Icons.bookmark_border);
+                                    }
+                                  }),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 14.0,
+                                ),
+                                child: Text(
+                                  "${post['likes'].length.toString()} Likes",
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 14.0,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "${post['users']['name']}",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 5.0,
+                                    ),
+                                    RichText(
+                                      text: buildClickableTextSpan(
+                                          post['caption'], _userId, context),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-                // ),
-              );
-            }),
+                  ],
+                  // ),
+                );
+              }),
+            ),
           ),
         );
       },
