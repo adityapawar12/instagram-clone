@@ -3,7 +3,9 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'utils/clickable_text_utils.dart';
 import 'package:video_player/video_player.dart';
+import 'package:instagram_clone/container.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:instagram_clone/othersProfile.page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FeedPage extends StatefulWidget {
@@ -192,31 +194,66 @@ class _FeedPageState extends State<FeedPage> {
                     ),
                     child: ListTile(
                       tileColor: Colors.white,
-                      leading: post['users']['profile_image_url'] != null &&
-                              post['users']['profile_image_url'].length > 0
-                          ? CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                post['users']['profile_image_url'],
-                              ),
-                            )
-                          : ClipOval(
-                              child: Container(
-                                height: 40,
-                                width: 40,
-                                color: const Color.fromARGB(255, 240, 240, 240),
-                                child: const SizedBox(
-                                  child: Icon(
-                                    Icons.person,
-                                    size: 30,
+                      leading: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) {
+                              if (post['users']['id'] == _userId) {
+                                return const ContainerPage(
+                                  selectedPageIndex: 3,
+                                );
+                              } else {
+                                return OthersProfile(
+                                    userId: post['users']['id']);
+                              }
+                            }),
+                          );
+                        },
+                        child: post['users']['profile_image_url'] != null &&
+                                post['users']['profile_image_url'].length > 0
+                            ? CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                  post['users']['profile_image_url'],
+                                ),
+                              )
+                            : ClipOval(
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  color:
+                                      const Color.fromARGB(255, 240, 240, 240),
+                                  child: const SizedBox(
+                                    child: Icon(
+                                      Icons.person,
+                                      size: 30,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                      title: Text(
-                        post['users']['name'],
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                      ),
+                      title: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) {
+                              if (post['users']['id'] == _userId) {
+                                return const ContainerPage(
+                                  selectedPageIndex: 3,
+                                );
+                              } else {
+                                return OthersProfile(
+                                    userId: post['users']['id']);
+                              }
+                            }),
+                          );
+                        },
+                        child: Text(
+                          post['users']['name'],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                       subtitle: Text(
