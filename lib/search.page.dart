@@ -226,7 +226,6 @@ class _SearchPageState extends State<SearchPage> {
                       return Container();
                     }
 
-                    log(snapshot.data.toString());
                     return Expanded(
                       child: MasonryGridView.count(
                         // itemCount: _items.length,
