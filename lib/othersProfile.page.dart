@@ -1,11 +1,12 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'utils/clickable_text_utils.dart';
-import 'package:instagram_clone/followed.page.dart';
-import 'package:instagram_clone/followers.page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
+import 'package:instagram_clone/followed.page.dart';
+import 'package:instagram_clone/userFeed.page.dart';
+import 'package:instagram_clone/followers.page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OthersProfile extends StatefulWidget {
   final int userId;
@@ -684,51 +685,80 @@ class _OthersProfileState extends State<OthersProfile> {
 
                                   return Column(
                                     children: [
-                                      if (post['post_type'] == 'image')
-                                        SizedBox(
-                                          width: 129,
-                                          height: 129,
-                                          child: FittedBox(
-                                            fit: BoxFit.contain,
-                                            child: Image.network(
-                                              post['post_url'],
-                                              height: 129,
-                                            ),
-                                          ),
-                                        )
-                                      else if (post['post_type'] == 'video')
-                                        SizedBox(
-                                          width: 129,
-                                          height: 129,
-                                          child: FittedBox(
-                                            fit: BoxFit.fitWidth,
-                                            child: Chewie(
-                                              controller: ChewieController(
-                                                videoPlayerController:
-                                                    VideoPlayerController
-                                                        .network(
-                                                  post['post_url'],
-                                                ),
-                                                autoPlay: true,
-                                                aspectRatio: 16 / 9,
-                                                looping: false,
-                                                allowFullScreen: true,
-                                                allowMuting: true,
-                                                showControls: false,
-                                                errorBuilder:
-                                                    (context, errorMessage) {
-                                                  return Center(
-                                                    child: Text(
-                                                      errorMessage,
-                                                      style: const TextStyle(
-                                                          color: Colors.white),
-                                                    ),
-                                                  );
-                                                },
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => UserFeedPage(
+                                                userId: post['users']['id'],
                                               ),
                                             ),
-                                          ),
-                                        ),
+                                          );
+                                        },
+                                        child: post['post_type'] == 'image'
+                                            ? SizedBox(
+                                                width: 129,
+                                                height: 129,
+                                                child: FittedBox(
+                                                  fit: BoxFit.contain,
+                                                  child: Image.network(
+                                                    post['post_url'],
+                                                    height: 129,
+                                                  ),
+                                                ),
+                                              )
+                                            : Container(),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => UserFeedPage(
+                                                userId: post['users']['id'],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: post['post_type'] == 'video'
+                                            ? SizedBox(
+                                                width: 129,
+                                                height: 129,
+                                                child: FittedBox(
+                                                  fit: BoxFit.fitWidth,
+                                                  child: Chewie(
+                                                    controller:
+                                                        ChewieController(
+                                                      videoPlayerController:
+                                                          VideoPlayerController
+                                                              .network(
+                                                        post['post_url'],
+                                                      ),
+                                                      autoPlay: true,
+                                                      aspectRatio: 16 / 9,
+                                                      looping: false,
+                                                      allowFullScreen: true,
+                                                      allowMuting: true,
+                                                      showControls: false,
+                                                      errorBuilder: (context,
+                                                          errorMessage) {
+                                                        return Center(
+                                                          child: Text(
+                                                            errorMessage,
+                                                            style:
+                                                                const TextStyle(
+                                                                    color: Colors
+                                                                        .white),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                            : Container(),
+                                      )
                                     ],
                                   );
                                 },
