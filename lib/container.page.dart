@@ -3,6 +3,8 @@ import 'package:instagram_clone/feed.page.dart';
 import 'package:instagram_clone/search.page.dart';
 import 'package:instagram_clone/profile.page.dart';
 import 'package:instagram_clone/createPost.page.dart';
+// import 'package:instagram_clone/imagePicker.page.dart';
+import 'package:instagram_clone/imagePickerNew.page.dart';
 
 class ContainerPage extends StatefulWidget {
   final int selectedPageIndex;
@@ -15,6 +17,8 @@ class ContainerPage extends StatefulWidget {
     SearchPage(),
     CreatePost(),
     ProfilePage(),
+    // PickerScreen(),
+    ImagePickerNewPage(),
   ];
 
   @override
@@ -68,6 +72,20 @@ class _ContainerPageState extends State<ContainerPage> {
           BottomNavigationBarItem(
             icon: Icon(
               Icons.person_2,
+              color: Colors.black,
+            ),
+            label: '',
+          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(
+          //     Icons.add_circle_outline,
+          //     color: Colors.black,
+          //   ),
+          //   label: '',
+          // ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.add_circle_outline,
               color: Colors.black,
             ),
             label: '',
