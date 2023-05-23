@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/createPost.page.dart';
 import 'package:instagram_clone/utils/files.dart';
 import 'package:flutter_storage_path/flutter_storage_path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -178,9 +179,12 @@ class _ImagePickerNewPageState extends State<ImagePickerNewPage> {
                     children: <Widget>[
                       Expanded(
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
                             IconButton(
                               icon: const Icon(Icons.clear),
+                              iconSize: 25,
                               onPressed: () {
                                 Navigator.pop(context);
                               },
@@ -188,24 +192,20 @@ class _ImagePickerNewPageState extends State<ImagePickerNewPage> {
                             const SizedBox(
                               width: 10,
                             ),
-                            DropdownButtonHideUnderline(
-                              child: DropdownButton<FileModel>(
-                                items: getItems(),
-                                onChanged: (FileModel? d) {
-                                  setState(() {
-                                    selectedModel = d!;
-                                    image = d.files[0];
-                                  });
-                                },
-                                value: selectedModel,
+                            const Text(
+                              "New Post",
+                              style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.w600,
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.arrow_forward),
                         color: Colors.blue,
+                        iconSize: 25,
                         onPressed: () {
                           // log(image.toString());
 
@@ -234,10 +234,32 @@ class _ImagePickerNewPageState extends State<ImagePickerNewPage> {
                     height: 30,
                     child: Row(
                       children: [
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<FileModel>(
+                              items: getItems(),
+                              onChanged: (FileModel? d) {
+                                setState(() {
+                                  selectedModel = d!;
+                                  image = d.files[0];
+                                });
+                              },
+                              value: selectedModel,
+                            ),
+                          ),
+                        ),
                         Expanded(child: Container()),
                         IconButton(
                             padding: const EdgeInsets.all(0),
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const CreatePost(),
+                                ),
+                              );
+                            },
                             icon: const Icon(Icons.camera_alt_rounded))
                       ],
                     ),

@@ -3,7 +3,7 @@ import '../main.dart';
 import 'dart:developer';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:instagram_clone/container.page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,6 +33,12 @@ class _CreatePostState extends State<CreatePost> {
   late String _location = '';
   late String _postType = 'image';
   late String _caption = '';
+
+  // SETTINGS
+  bool _showSettings = false;
+
+  // FLASH
+  FlashMode? _currentFlashMode;
 
   // GET USER INFO FROM SESSION
   Future<void> _loadPreferences() async {
@@ -65,6 +71,7 @@ class _CreatePostState extends State<CreatePost> {
 
     try {
       await cameraController.initialize();
+      _currentFlashMode = controller!.value.flashMode;
     } on CameraException catch (e) {
       log('Error initializing camera: $e');
     }
@@ -74,19 +81,6 @@ class _CreatePostState extends State<CreatePost> {
         _isCameraInitialized = controller!.value.isInitialized;
       });
     }
-  }
-
-  // IMAGE PICKER
-  Future<void> _selectImage() async {
-    final XFile? image =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (image == null) {
-      return;
-    }
-    setState(() {
-      _image = File(image.path);
-      _imageSelected = true;
-    });
   }
 
   //  TAKE PICTURE
@@ -238,14 +232,127 @@ class _CreatePostState extends State<CreatePost> {
                             children: [
                               Column(
                                 children: [
-                                  // CAMERA
-                                  AspectRatio(
-                                    aspectRatio:
-                                        1 / controller!.value.aspectRatio,
-                                    child: controller!.buildPreview(),
-                                  ),
+                                  Stack(
+                                    children: [
+                                      // CAMERA
+                                      AspectRatio(
+                                        aspectRatio:
+                                            1 / controller!.value.aspectRatio,
+                                        child: controller!.buildPreview(),
+                                      ),
 
-                                  // FLASH
+                                      Positioned(
+                                        top: 0,
+                                        child: Row(
+                                          children: [
+                                            // SHOW SETTINGS
+                                            IconButton(
+                                              onPressed: () async {
+                                                setState(() {
+                                                  _showSettings =
+                                                      !_showSettings;
+                                                });
+                                              },
+                                              icon: Icon(
+                                                _showSettings
+                                                    ? Icons.settings_sharp
+                                                    : Icons.settings_rounded,
+                                                color: Colors.white,
+                                                size: !_showSettings ? 50 : 30,
+                                              ),
+                                            ),
+
+                                            // FLASH OFF
+                                            IconButton(
+                                              onPressed: () async {
+                                                setState(() {
+                                                  _currentFlashMode =
+                                                      FlashMode.off;
+                                                });
+                                                await controller!.setFlashMode(
+                                                  FlashMode.off,
+                                                );
+                                              },
+                                              icon: Icon(
+                                                Icons.flash_off,
+                                                color: _currentFlashMode ==
+                                                        FlashMode.off
+                                                    ? Colors.amber
+                                                    : Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
+
+                                            // AUTO FLASH
+                                            IconButton(
+                                              onPressed: () async {
+                                                setState(() {
+                                                  _currentFlashMode =
+                                                      FlashMode.auto;
+                                                });
+                                                await controller!.setFlashMode(
+                                                  FlashMode.auto,
+                                                );
+                                              },
+                                              icon: Icon(
+                                                Icons.flash_auto,
+                                                color: _currentFlashMode ==
+                                                        FlashMode.auto
+                                                    ? Colors.amber
+                                                    : Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
+
+                                            // TORCH
+                                            IconButton(
+                                              onPressed: () async {
+                                                setState(() {
+                                                  _currentFlashMode =
+                                                      FlashMode.torch;
+                                                });
+                                                await controller!.setFlashMode(
+                                                  FlashMode.torch,
+                                                );
+                                              },
+                                              icon: Icon(
+                                                Icons.highlight,
+                                                color: _currentFlashMode ==
+                                                        FlashMode.torch
+                                                    ? Colors.amber
+                                                    : Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      Positioned(
+                                        bottom: 0,
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            // CLICK PIC
+                                            SizedBox(
+                                              height: 150,
+                                              child: IconButton(
+                                                onPressed: _takePhoto,
+                                                icon: const Icon(
+                                                  Icons.circle,
+                                                  color: Colors.white,
+                                                  size: 120,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                   Expanded(
                                     child: Container(
                                       color: Colors.white,
@@ -255,6 +362,32 @@ class _CreatePostState extends State<CreatePost> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
+                                          // SELECT FILE
+                                          Expanded(
+                                            flex: 1,
+                                            child: SizedBox(
+                                              height: 70,
+                                              child: IconButton(
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (_) =>
+                                                          const ContainerPage(
+                                                        selectedPageIndex: 2,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                icon: const Icon(
+                                                  Icons.image,
+                                                  color: Colors.black,
+                                                  size: 50,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+
                                           // FLIP
                                           Expanded(
                                             flex: 1,
@@ -281,38 +414,6 @@ class _CreatePostState extends State<CreatePost> {
                                                   _isRearCameraSelected
                                                       ? Icons.camera_front
                                                       : Icons.camera_rear,
-                                                  color: Colors.black,
-                                                  size: 50,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-
-                                          // CLICK PIC
-                                          Expanded(
-                                            flex: 2,
-                                            child: SizedBox(
-                                              height: 150,
-                                              child: IconButton(
-                                                onPressed: _takePhoto,
-                                                icon: const Icon(
-                                                  Icons.circle,
-                                                  color: Colors.black,
-                                                  size: 120,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-
-                                          // SELECT FILE
-                                          Expanded(
-                                            flex: 1,
-                                            child: SizedBox(
-                                              height: 70,
-                                              child: IconButton(
-                                                onPressed: _selectImage,
-                                                icon: const Icon(
-                                                  Icons.image,
                                                   color: Colors.black,
                                                   size: 50,
                                                 ),

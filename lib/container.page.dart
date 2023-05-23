@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:instagram_clone/feed.page.dart';
 import 'package:instagram_clone/search.page.dart';
 import 'package:instagram_clone/profile.page.dart';
-import 'package:instagram_clone/createPost.page.dart';
-// import 'package:instagram_clone/imagePicker.page.dart';
 import 'package:instagram_clone/imagePickerNew.page.dart';
 
 class ContainerPage extends StatefulWidget {
@@ -15,10 +13,8 @@ class ContainerPage extends StatefulWidget {
   static const List<Widget> _widgetOptions = <Widget>[
     FeedPage(),
     SearchPage(),
-    CreatePost(),
-    ProfilePage(),
-    // PickerScreen(),
     ImagePickerNewPage(),
+    ProfilePage(),
   ];
 
   @override
@@ -72,20 +68,6 @@ class _ContainerPageState extends State<ContainerPage> {
           BottomNavigationBarItem(
             icon: Icon(
               Icons.person_2,
-              color: Colors.black,
-            ),
-            label: '',
-          ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(
-          //     Icons.add_circle_outline,
-          //     color: Colors.black,
-          //   ),
-          //   label: '',
-          // ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.add_circle_outline,
               color: Colors.black,
             ),
             label: '',
